@@ -38,7 +38,7 @@ public static class SnapshotQualityEvaluator
             if (jump > MaxSingleStepPriceJumpRatio)
                 flags |= SnapshotQualityFlag.PriceJump;
         }
-
+        //testing update in github 2
         return flags;
     }
 }
