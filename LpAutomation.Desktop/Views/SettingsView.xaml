@@ -1,0 +1,220 @@
+<Window x:Class="LpAutomation.Desktop.Views.SettingsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Strategy Settings" Height="900" Width="1280">
+	<Grid Margin="12">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<!-- Toolbar -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+			<Button Content="Load" Command="{Binding LoadCommand}" Margin="0,0,8,0"/>
+			<Button Content="Validate" Command="{Binding ValidateCommand}" Margin="0,0,8,0"/>
+			<Button Content="Save" Command="{Binding SaveCommand}" Margin="0,0,8,0"/>
+			<Button Content="Preview Impact" Command="{Binding PreviewImpactCommand}" Margin="0,0,8,0"/>
+			<Button Content="Export" Command="{Binding ExportCommand}" Margin="0,0,8,0"/>
+			<Button Content="Import" Command="{Binding ImportCommand}" Margin="0,0,8,0"/>
+			<Button Content="Reset All" Command="{Binding ResetAllCommand}" Margin="0,0,8,0"/>
+
+			<CheckBox Content="Auto-correct safe issues"
+                      IsChecked="{Binding AutoCorrectEnabled}"
+                      VerticalAlignment="Center" Margin="16,0,0,0"/>
+		</StackPanel>
+
+		<Grid Grid.Row="1">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="3*"/>
+				<ColumnDefinition Width="2*"/>
+			</Grid.ColumnDefinitions>
+
+			<!-- Left: Editor -->
+			<TabControl Grid.Column="0">
+				<TabItem Header="Global Defaults">
+					<ScrollViewer VerticalScrollBarVisibility="Auto">
+						<StackPanel Margin="10">
+
+							<Expander Header="Decision Thresholds" IsExpanded="True">
+								<StackPanel Margin="10">
+									<UniformGrid Columns="4">
+										<StackPanel>
+											<TextBlock Text="Compound Score Min"/>
+											<TextBox Text="{Binding Draft.Global.Decisions.CompoundScoreMin, UpdateSourceTrigger=PropertyChanged}"/>
+										</StackPanel>
+										<StackPanel>
+											<TextBlock Text="Reallocate Score Max"/>
+											<TextBox Text="{Binding Draft.Global.Decisions.ReallocateScoreMax, UpdateSourceTrigger=PropertyChanged}"/>
+										</StackPanel>
+										<StackPanel>
+											<TextBlock Text="Min Hours Between Compounds"/>
+											<TextBox Text="{Binding Draft.Global.Decisions.MinHoursBetweenCompounds, UpdateSourceTrigger=PropertyChanged}"/>
+										</StackPanel>
+										<StackPanel>
+											<TextBlock Text="Stale After (sec)"/>
+											<TextBox Text="{Binding Draft.Global.Decisions.StaleAfterSeconds, UpdateSourceTrigger=PropertyChanged}"/>
+										</StackPanel>
+									</UniformGrid>
+								</StackPanel>
+							</Expander>
+
+							<Expander Header="Guardrails" IsExpanded="True" Margin="0,10,0,0">
+								<StackPanel Margin="10">
+									<UniformGrid Columns="4">
+										<StackPanel>
+											<TextBlock Text="Max Slippage (bps)"/>
+											<TextBox Text="{Binding Draft.Global.Guardrails.MaxSlippageBps, UpdateSourceTrigger=PropertyChanged}"/>
+										</StackPanel>
+										<StackPanel>
+											<TextBlock Text="Max Notional USD / Proposal"/>
+											<TextBox Text="{Binding Draft.Global.Guardrails.MaxNotionalUsdPerProposal, UpdateSourceTrigger=PropertyChanged}"/>
+										</StackPanel>
+										<StackPanel>
+											<TextBlock Text="Max Gas Fee (gwei)"/>
+											<TextBox Text="{Binding Draft.Global.Guardrails.MaxGasFeeGwei, UpdateSourceTrigger=PropertyChanged}"/>
+										</StackPanel>
+										<StackPanel>
+											<TextBlock Text="Deadline at Execution (sec)"/>
+											<TextBox Text="{Binding Draft.Global.Guardrails.DeadlineSecondsAtExecution, UpdateSourceTrigger=PropertyChanged}"/>
+										</StackPanel>
+									</UniformGrid>
+
+									<StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+										<CheckBox Content="Allow Approvals" IsChecked="{Binding Draft.Global.Guardrails.AllowApprovals}" />
+										<StackPanel Margin="12,0,0,0">
+											<TextBlock Text="Max Approval USD"/>
+											<TextBox Width="160" Text="{Binding Draft.Global.Guardrails.MaxApprovalUsd, UpdateSourceTrigger=PropertyChanged}"/>
+										</StackPanel>
+									</StackPanel>
+								</StackPanel>
+							</Expander>
+
+						</StackPanel>
+					</ScrollViewer>
+				</TabItem>
+
+				<TabItem Header="Pool Overrides">
+					<Grid Margin="10">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="2*"/>
+							<ColumnDefinition Width="3*"/>
+						</Grid.ColumnDefinitions>
+
+						<GroupBox Header="Overrides" Grid.Column="0" Margin="0,0,8,0">
+							<ListBox ItemsSource="{Binding Overrides}"
+                                     SelectedItem="{Binding OverrideEditor.Selected}"
+                                     DisplayMemberPath="PoolLabel" />
+						</GroupBox>
+
+						<GroupBox Header="Selected Override" Grid.Column="1">
+							<ScrollViewer VerticalScrollBarVisibility="Auto">
+								<StackPanel Margin="10">
+									<TextBlock Text="{Binding OverrideEditor.Selected.PoolLabel}" FontWeight="SemiBold" Margin="0,0,0,6"/>
+
+									<CheckBox Content="Enabled" IsChecked="{Binding OverrideEditor.Selected.Enabled}" />
+
+									<TextBlock Text="Notes" Margin="0,8,0,2"/>
+									<TextBox Text="{Binding OverrideEditor.Selected.Notes}" Height="60" AcceptsReturn="True"/>
+
+									<Expander Header="Decision Overrides" IsExpanded="True" Margin="0,10,0,0">
+										<StackPanel Margin="10">
+											<DockPanel Margin="0,0,0,6">
+												<CheckBox Content="Override CompoundScoreMin"
+                                                          IsChecked="{Binding OverrideEditor.CompoundScoreMin.IsOverridden}" Width="240"/>
+												<TextBox Text="{Binding OverrideEditor.CompoundScoreMin.Value}" Width="120"/>
+											</DockPanel>
+											<DockPanel Margin="0,0,0,6">
+												<CheckBox Content="Override ReallocateScoreMax"
+                                                          IsChecked="{Binding OverrideEditor.ReallocateScoreMax.IsOverridden}" Width="240"/>
+												<TextBox Text="{Binding OverrideEditor.ReallocateScoreMax.Value}" Width="120"/>
+											</DockPanel>
+											<DockPanel>
+												<CheckBox Content="Override MinHoursBetweenCompounds"
+                                                          IsChecked="{Binding OverrideEditor.MinHoursBetweenCompounds.IsOverridden}" Width="240"/>
+												<TextBox Text="{Binding OverrideEditor.MinHoursBetweenCompounds.Value}" Width="120"/>
+											</DockPanel>
+										</StackPanel>
+									</Expander>
+
+									<Expander Header="Guardrail Overrides" IsExpanded="True" Margin="0,10,0,0">
+										<StackPanel Margin="10">
+											<DockPanel Margin="0,0,0,6">
+												<CheckBox Content="Override MaxSlippageBps"
+                                                          IsChecked="{Binding OverrideEditor.MaxSlippageBps.IsOverridden}" Width="240"/>
+												<TextBox Text="{Binding OverrideEditor.MaxSlippageBps.Value}" Width="120"/>
+											</DockPanel>
+											<DockPanel>
+												<CheckBox Content="Override MaxNotionalUsdPerProposal"
+                                                          IsChecked="{Binding OverrideEditor.MaxNotionalUsdPerProposal.IsOverridden}" Width="240"/>
+												<TextBox Text="{Binding OverrideEditor.MaxNotionalUsdPerProposal.Value}" Width="120"/>
+											</DockPanel>
+										</StackPanel>
+									</Expander>
+
+									<Button Content="Apply Patch"
+                                            Command="{Binding OverrideEditor.ApplyPatchCommand}"
+                                            Margin="0,12,0,0" Width="140"/>
+								</StackPanel>
+							</ScrollViewer>
+						</GroupBox>
+					</Grid>
+				</TabItem>
+			</TabControl>
+
+			<!-- Right: Validation + Preview -->
+			<Grid Grid.Column="1">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="2*"/>
+					<RowDefinition Height="3*"/>
+				</Grid.RowDefinitions>
+
+				<GroupBox Header="Validation &amp; Auto-corrections" Grid.Row="0" Margin="0,0,0,8">
+					<Grid Margin="8">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="*"/>
+							<RowDefinition Height="*"/>
+						</Grid.RowDefinitions>
+
+						<StackPanel Grid.Row="0">
+							<TextBlock Text="Auto-corrections" FontWeight="SemiBold" Margin="0,0,0,6"/>
+							<ListBox ItemsSource="{Binding AutoCorrections}" />
+						</StackPanel>
+
+						<StackPanel Grid.Row="1" Margin="0,10,0,0">
+							<TextBlock Text="Issues" FontWeight="SemiBold" Margin="0,0,0,6"/>
+							<ListView ItemsSource="{Binding ValidationIssues}">
+								<ListView.View>
+									<GridView>
+										<GridViewColumn Header="Severity" DisplayMemberBinding="{Binding Severity}" Width="80"/>
+										<GridViewColumn Header="Path" DisplayMemberBinding="{Binding Path}" Width="220"/>
+										<GridViewColumn Header="Message" DisplayMemberBinding="{Binding Message}" Width="300"/>
+									</GridView>
+								</ListView.View>
+							</ListView>
+						</StackPanel>
+					</Grid>
+				</GroupBox>
+
+				<GroupBox Header="Preview Impact" Grid.Row="1">
+					<ListView ItemsSource="{Binding PreviewResults}" Margin="8">
+						<ListView.ItemTemplate>
+							<DataTemplate>
+								<Expander Header="{Binding PoolLabel}">
+									<ListView ItemsSource="{Binding Changes}">
+										<ListView.View>
+											<GridView>
+												<GridViewColumn Header="Path" DisplayMemberBinding="{Binding Path}" Width="260"/>
+												<GridViewColumn Header="Old" DisplayMemberBinding="{Binding OldValue}" Width="170"/>
+												<GridViewColumn Header="New" DisplayMemberBinding="{Binding NewValue}" Width="170"/>
+											</GridView>
+										</ListView.View>
+									</ListView>
+								</Expander>
+							</DataTemplate>
+						</ListView.ItemTemplate>
+					</ListView>
+				</GroupBox>
+			</Grid>
+		</Grid>
+	</Grid>
+</Window>

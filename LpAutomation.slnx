@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="migrations.md" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="global.json" />
+  </Folder>
+  <Project Path="LpAutomation.Contracts/LpAutomation.Contracts.csproj" Id="8652b240-ca08-4e5e-9ffc-c9662e638d42" />
+  <Project Path="LpAutomation.Core/LpAutomation.Core.csproj" />
+  <Project Path="LpAutomation.Desktop/LpAutomation.Desktop.csproj" />
+  <Project Path="LpAutomation.Server/LpAutomation.Server.csproj" />
+</Solution>

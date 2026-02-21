@@ -1,0 +1,25 @@
+﻿<Application x:Class="LpAutomation.Desktop.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:LpAutomation.Desktop.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:BundledTheme BaseTheme="Dark"
+                                             PrimaryColor="DeepPurple"
+                                             SecondaryColor="Lime"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Existing -->
+            <converters:HeatToBrushConverter x:Key="HeatToBrushConverter" />
+
+            <!-- Heat (risk) -->
+            <converters:HeatArrowToBrushConverter x:Key="HeatArrowToBrushConverter" />
+            <converters:HeatDeltaToBrushConverter x:Key="HeatDeltaToBrushConverter" />
+
+            <!-- Momentum (price) -->
+            <converters:PriceArrowToBrushConverter x:Key="PriceArrowToBrushConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

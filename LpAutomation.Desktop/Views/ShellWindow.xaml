@@ -1,0 +1,279 @@
+<Window x:Class="LpAutomation.Desktop.Views.ShellWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:vm="clr-namespace:LpAutomation.Desktop.ViewModels"
+        xmlns:views="clr-namespace:LpAutomation.Desktop.Views"
+        mc:Ignorable="d"
+        Title="LP Automation"
+        Width="1200"
+        Height="760"
+        WindowStartupLocation="CenterScreen"
+        Background="#121212"
+        TextElement.Foreground="#EAEAEA"
+        TextElement.FontSize="14"
+        TextElement.FontFamily="Segoe UI">
+
+    <Window.Resources>
+
+        <!-- ===== Page Templates ===== -->
+
+        <!-- Dashboard -->
+        <DataTemplate DataType="{x:Type vm:DashboardPageViewModel}">
+            <StackPanel>
+                <TextBlock Text="Dashboard"
+                           FontSize="26"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,24"/>
+
+                <materialDesign:Card Padding="16"
+                                     Margin="0,0,0,24"
+                                     materialDesign:ElevationAssist.Elevation="Dp2">
+                    <StackPanel>
+                        <TextBlock Text="Next steps"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,24"
+                                   Opacity="0.95"/>
+                        <TextBlock Text="Show active pools, regime badges, and score tiles."
+                                   Opacity="0.75"/>
+                        <TextBlock Text="Market Regime"
+                       FontSize="14"
+                       Opacity="0.95"/>
+                        <TextBlock Text="{Binding CurrentRegime}"
+                       FontSize="22"
+                       FontWeight="SemiBold"
+                       Opacity=".95"/>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <materialDesign:Card Margin="0,0,0,24"
+                         Padding="16"
+                         materialDesign:ElevationAssist.Elevation="Dp2">
+                    <StackPanel>
+                        <TextBlock Text="Top Reinvest Score"
+                       FontSize="14"
+                       Opacity="0.95"/>
+                        <TextBlock Text="{Binding TopReinvestScore}"
+                       FontSize="22"
+                       FontWeight="SemiBold"/>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <materialDesign:Card Padding="16"
+                         materialDesign:ElevationAssist.Elevation="Dp2">
+                    <StackPanel>
+                        <TextBlock Text="Top Reallocate Score"
+                       FontSize="14"
+                       Opacity="0.95"/>
+                        <TextBlock Text="{Binding TopReallocateScore}"
+                       FontSize="22"
+                       FontWeight="SemiBold"/>
+                    </StackPanel>
+                </materialDesign:Card>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- Recommendations -->
+        <DataTemplate DataType="{x:Type vm:RecommendationsPageViewModel}">
+            <views:RecommendationsPageView/>
+        </DataTemplate>
+
+        <!-- Config -->
+        <DataTemplate DataType="{x:Type vm:ConfigPageViewModel}">
+            <StackPanel>
+                <TextBlock Text="Config"
+                           FontSize="26"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,24"/>
+
+                <materialDesign:Card Padding="16"
+                                     Margin="0,0,0,24"
+                                     materialDesign:ElevationAssist.Elevation="Dp2">
+                    <StackPanel>
+                        <TextBlock Text="Next steps"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,24"
+                                   Opacity="0.95"/>
+                        <TextBlock Text="Load config, validate, show overrides editor."
+                                   Opacity="0.95"/>
+                    </StackPanel>
+                </materialDesign:Card>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- Settings -->
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <StackPanel>
+                <TextBlock Text="Settings"
+                           FontSize="26"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,24"/>
+
+                <materialDesign:Card Padding="16"
+                                     materialDesign:ElevationAssist.Elevation="Dp2">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Status}" Opacity="0.95"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                            <Button Content="Export"
+                                    Command="{Binding ExportConfigCommand}"
+                                    Margin="0,0,12,0"
+                                    Padding="12,8"/>
+                            <Button Content="Import"
+                                    Command="{Binding ImportConfigCommand}"
+                                    Padding="12,8"/>
+                        </StackPanel>
+                    </StackPanel>
+                </materialDesign:Card>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- ===== Nav button style (safe; no Material resource keys required) ===== -->
+        <Style x:Key="NavButtonStyle" TargetType="Button">
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Margin" Value="12,6,12,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="#1A1A1A"/>
+            <Setter Property="Foreground" Value="#EAEAEA"/>
+            <Setter Property="Cursor" Value="Hand"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#262626"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#303030"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding IsNavOpen}">
+
+        <!-- ========== LEFT NAV ========== -->
+        <materialDesign:DrawerHost.LeftDrawerContent>
+            <Grid Width="280" Background="#141414">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Brand / subtitle (SECONDARY = Lime) -->
+                <materialDesign:ColorZone Grid.Row="0"
+                                          Mode="SecondaryDark"
+                                          Padding="16"
+                                          Margin="0,0,0,8">
+                    <StackPanel>
+                        <TextBlock Text="LP Automation"
+                                   FontSize="20"
+                                   FontWeight="SemiBold"
+                                   Foreground="Black"/>
+                        <TextBlock Text="{Binding Subtitle}"
+                                   Opacity="0.8"
+                                   Margin="0,4,0,0"
+                                   Foreground="Black"/>
+                    </StackPanel>
+                </materialDesign:ColorZone>
+
+                <!-- Nav items -->
+                <ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding NavItems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Style="{StaticResource NavButtonStyle}"
+                                        Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding}">
+                                    <DockPanel LastChildFill="True">
+                                        <!-- IconKind is optional; if your NavItem has it, you'll see icons -->
+                                        <materialDesign:PackIcon Kind="{Binding IconKind}"
+                                                                Width="20"
+                                                                Height="20"
+                                                                Opacity="0.9"
+                                                                Margin="0,0,12,0"/>
+                                        <TextBlock Text="{Binding Title}" VerticalAlignment="Center"/>
+                                    </DockPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- Footer -->
+                <StackPanel Grid.Row="2" Margin="16,12,16,16">
+                    <Separator Opacity="0.2" Margin="0,0,0,12"/>
+                    <TextBlock Text="v1.0" Opacity="0.6"/>
+                </StackPanel>
+            </Grid>
+        </materialDesign:DrawerHost.LeftDrawerContent>
+
+        <!-- ========== MAIN AREA ========== -->
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top app bar (PRIMARY = Purple) -->
+            <materialDesign:ColorZone Grid.Row="0"
+                                      Mode="PrimaryDark"
+                                      Margin="16,16,16,10"
+                                      Padding="12"
+                                      CornerRadius="12">
+                <DockPanel LastChildFill="True">
+
+                    <!-- Hamburger (toggles the drawer, always visible) -->
+                    <ToggleButton Width="44"
+                                  Height="40"
+                                  IsChecked="{Binding IsNavOpen, Mode=TwoWay}"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Foreground="White"
+                                  ToolTip="Menu">
+                        <materialDesign:PackIcon Kind="Menu"
+                                                 Width="22"
+                                                 Height="22"
+                                                 Foreground="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton}, Path=Foreground}" />
+                    </ToggleButton>
+
+                    <TextBlock Text="{Binding CurrentPageTitle}"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"
+                               Margin="12,0,0,0"
+                               Foreground="White"/>
+                </DockPanel>
+            </materialDesign:ColorZone>
+
+            <!-- Page host -->
+            <!-- Page host (NO outer ScrollViewer; pages manage their own scrolling) -->
+            <ContentControl Grid.Row="1"
+                Margin="16,0,16,16"
+                Content="{Binding CurrentPage}"/>
+        </Grid>
+
+    </materialDesign:DrawerHost>
+</Window>
