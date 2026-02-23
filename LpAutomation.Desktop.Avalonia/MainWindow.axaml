@@ -1,7 +1,0 @@
-﻿<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="LpAutomation.Desktop.Avalonia.MainWindow"
-        Width="1000" Height="700"
-        Title="LP Automation (Avalonia)">
-	<TextBlock Margin="24" FontSize="24" Text="Avalonia boot successful" />
-</Window>
