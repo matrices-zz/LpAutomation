@@ -30,9 +30,9 @@ public sealed class SnapshotRepository
     {
         const string sql = @"
 INSERT INTO pool_snapshots
-(chain_id, pool_address, ts_utc, block_number, price, liquidity, volume_token0, volume_token1)
+(chain_id, pool_address, ts_utc, block_number, price, liquidity, volume_token0, volume_token1, source, latency_ms, finality_status, quality_flags)
 VALUES
-(@ChainId, @PoolAddress, @TsUtc, @BlockNumber, @Price, @Liquidity, @VolumeToken0, @VolumeToken1);";
+(@ChainId, @PoolAddress, @TsUtc, @BlockNumber, @Price, @Liquidity, @VolumeToken0, @VolumeToken1, @Source, @LatencyMs, @FinalityStatus, @QualityFlags);";
 
         var args = new
         {
@@ -43,7 +43,11 @@ VALUES
             s.Price,
             s.Liquidity,
             s.VolumeToken0,
-            s.VolumeToken1
+            s.VolumeToken1,
+            s.Source,
+            s.LatencyMs,
+            s.FinalityStatus,
+            s.QualityFlags
         };
 
         await using var conn = CreateConnection();
@@ -67,7 +71,11 @@ SELECT
   price         AS Price,
   liquidity     AS Liquidity,
   volume_token0 AS VolumeToken0,
-  volume_token1 AS VolumeToken1
+  volume_token1 AS VolumeToken1,
+  source        AS Source,
+  latency_ms    AS LatencyMs,
+  finality_status AS FinalityStatus,
+  quality_flags AS QualityFlags
 FROM pool_snapshots
 WHERE chain_id = @ChainId
   AND pool_address = @PoolAddress
@@ -100,11 +108,66 @@ ORDER BY ts_utc ASC;";
                 (double)r.Price,
                 (double?)r.Liquidity,
                 (double?)r.VolumeToken0,
-                (double?)r.VolumeToken1
+                (double?)r.VolumeToken1,
+                (string?)r.Source,
+                (int?)r.LatencyMs,
+                (string?)r.FinalityStatus,
+                (string?)r.QualityFlags
             ));
         }
 
         return list;
+    }
+
+    public async Task<PoolSnapshot?> GetLatestSnapshotAsync(int chainId, string poolAddress, CancellationToken ct = default)
+    {
+        const string sql = @"
+SELECT
+  chain_id      AS ChainId,
+  pool_address  AS PoolAddress,
+  ts_utc        AS TsUtc,
+  block_number  AS BlockNumber,
+  price         AS Price,
+  liquidity     AS Liquidity,
+  volume_token0 AS VolumeToken0,
+  volume_token1 AS VolumeToken1,
+  source        AS Source,
+  latency_ms    AS LatencyMs,
+  finality_status AS FinalityStatus,
+  quality_flags AS QualityFlags
+FROM pool_snapshots
+WHERE chain_id = @ChainId
+  AND pool_address = @PoolAddress
+ORDER BY ts_utc DESC
+LIMIT 1;";
+
+        await using var conn = CreateConnection();
+        await conn.OpenAsync(ct);
+
+        var row = await conn.QueryFirstOrDefaultAsync(sql, new
+        {
+            ChainId = chainId,
+            PoolAddress = poolAddress.ToLowerInvariant()
+        });
+
+        if (row is null)
+            return null;
+
+        string ts = row.TsUtc;
+        return new PoolSnapshot(
+            (int)row.ChainId,
+            (string)row.PoolAddress,
+            DateTime.Parse(ts, null, DateTimeStyles.RoundtripKind),
+            (long)row.BlockNumber,
+            (double)row.Price,
+            (double?)row.Liquidity,
+            (double?)row.VolumeToken0,
+            (double?)row.VolumeToken1,
+            (string?)row.Source,
+            (int?)row.LatencyMs,
+            (string?)row.FinalityStatus,
+            (string?)row.QualityFlags
+        );
     }
 
     public async Task<long?> GetLatestBlockAsync(int chainId, string poolAddress, CancellationToken ct = default)

@@ -20,6 +20,7 @@ public static class SqliteDbInitializer
         var dir = Path.GetDirectoryName(dbPath);
         if (!string.IsNullOrWhiteSpace(dir))
             Directory.CreateDirectory(dir);
+
         var cs = new SqliteConnectionStringBuilder
         {
             DataSource = dbPath,
@@ -42,7 +43,7 @@ CREATE TABLE IF NOT EXISTS pool_snapshots (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     chain_id        INTEGER NOT NULL,
     pool_address    TEXT    NOT NULL,
-    ts_utc          TEXT    NOT NULL,   -- ISO8601 UTC
+    ts_utc          TEXT    NOT NULL,
     block_number    INTEGER NOT NULL,
     price           REAL    NOT NULL,
     liquidity       REAL    NULL,
@@ -55,8 +56,18 @@ CREATE INDEX IF NOT EXISTS ix_pool_snapshots_pool_ts
 
 CREATE INDEX IF NOT EXISTS ix_pool_snapshots_pool_block
     ON pool_snapshots (chain_id, pool_address, block_number);
+
+CREATE UNIQUE INDEX IF NOT EXISTS ux_pool_snapshots_pool_block_nonzero
+    ON pool_snapshots (chain_id, pool_address, block_number)
+    WHERE block_number > 0;
 ";
         await ExecuteAsync(conn, createSnapshots, ct);
+        await ExecuteAsync(conn, createSnapshots, ct);
+        await EnsureColumnExistsAsync(conn, "pool_snapshots", "source", "TEXT NULL", ct);
+        await EnsureColumnExistsAsync(conn, "pool_snapshots", "latency_ms", "INTEGER NULL", ct);
+        await EnsureColumnExistsAsync(conn, "pool_snapshots", "finality_status", "TEXT NULL", ct);
+        await EnsureColumnExistsAsync(conn, "pool_snapshots", "quality_flags", "TEXT NULL", ct);
+
 
         // ===== Bars / rollups =====
         // NOTE: SQLite supports '--' and /* */ comments, NOT '//' comments.
@@ -64,7 +75,7 @@ CREATE INDEX IF NOT EXISTS ix_pool_snapshots_pool_block
 CREATE TABLE IF NOT EXISTS pool_bars_1m (
   chain_id       INTEGER NOT NULL,
   pool_address   TEXT    NOT NULL,
-  ts_utc         TEXT    NOT NULL,  -- minute bucket timestamp ISO8601
+  ts_utc         TEXT    NOT NULL,
   open           REAL    NOT NULL,
   high           REAL    NOT NULL,
   low            REAL    NOT NULL,
@@ -127,6 +138,21 @@ INSERT OR IGNORE INTO strategy_config_current (singleton_id, version_id, updated
 VALUES (1, 0, '1970-01-01T00:00:00.0000000Z');
 ";
         await ExecuteAsync(conn, createConfigTables, ct);
+    }
+
+    private static async Task EnsureColumnExistsAsync(SqliteConnection conn, string table, string column, string definition, CancellationToken ct)
+    {
+        await using var check = conn.CreateCommand();
+        check.CommandText = $"PRAGMA table_info({table});";
+
+        await using var reader = await check.ExecuteReaderAsync(ct);
+        while (await reader.ReadAsync(ct))
+        {
+            if (string.Equals(reader.GetString(1), column, StringComparison.OrdinalIgnoreCase))
+                return;
+        }
+
+        await ExecuteAsync(conn, $"ALTER TABLE {table} ADD COLUMN {column} {definition};", ct);
     }
 
     private static async Task ExecuteAsync(SqliteConnection conn, string sql, CancellationToken ct)

@@ -105,6 +105,27 @@ public sealed class StrategyEngineHostedService : BackgroundService
                     var poolId = $"{key.Token0}/{key.Token1}/{key.FeeTier}";
                     var nowUtc = DateTime.UtcNow;
 
+                    var previous = await _snapshots.GetLatestSnapshotAsync((int)key.ChainId, poolId, stoppingToken);
+                    var draft = new DbPoolSnapshot(
+                        ChainId: (int)key.ChainId,
+                        PoolAddress: poolId,
+                        TimestampUtc: snap.AsOfUtc.UtcDateTime,
+                        BlockNumber: 0,
+                        Price: snap.Price,
+                        Liquidity: null,
+                        VolumeToken0: null,
+                        VolumeToken1: null,
+                        Source: "stub",
+                        LatencyMs: null,
+                        FinalityStatus: "synthetic"
+                    );
+
+                    var qualityFlags = SnapshotQualityEvaluator.Evaluate(draft, previous, nowUtc);
+                    var persisted = draft with
+                    {
+                        QualityFlags = qualityFlags == SnapshotQualityFlag.None ? null : qualityFlags.ToString()
+                    };
+
                     // Persist raw snapshot
                     await _snapshots.InsertSnapshotAsync(
                         new DbPoolSnapshot(

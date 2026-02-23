@@ -8,5 +8,9 @@ public sealed record PoolSnapshot(
     double Price,
     double? Liquidity = null,
     double? VolumeToken0 = null,
-    double? VolumeToken1 = null
+    double? VolumeToken1 = null,
+    string? Source = null,
+    int? LatencyMs = null,
+    string? FinalityStatus = null,
+    string? QualityFlags = null
 );
