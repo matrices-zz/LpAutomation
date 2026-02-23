@@ -7,6 +7,7 @@
   </Folder>
   <Project Path="LpAutomation.Contracts/LpAutomation.Contracts.csproj" Id="8652b240-ca08-4e5e-9ffc-c9662e638d42" />
   <Project Path="LpAutomation.Core/LpAutomation.Core.csproj" />
+  <Project Path="LpAutomation.Desktop.Avalonia/LpAutomation.Desktop.Avalonia.csproj" Id="e6c6e175-b2fe-4e39-a624-529290a34b8f" />
   <Project Path="LpAutomation.Desktop/LpAutomation.Desktop.csproj" />
   <Project Path="LpAutomation.Server/LpAutomation.Server.csproj" />
 </Solution>
