@@ -2,11 +2,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
 	<Styles.Resources>
-		<SolidColorBrush x:Key="AccentPurple">#7E57C2</SolidColorBrush>
-		<SolidColorBrush x:Key="AccentLime">#9CCC65</SolidColorBrush>
-		<SolidColorBrush x:Key="SurfaceCardBrush">#1E1E1E</SolidColorBrush>
-		<SolidColorBrush x:Key="SurfaceBorderBrush">#2A2A2A</SolidColorBrush>
+		<!-- Brand -->
+		<SolidColorBrush x:Key="BrandPrimaryBrush">#7E57C2</SolidColorBrush>
+		<SolidColorBrush x:Key="BrandSecondaryBrush">#9CCC65</SolidColorBrush>
+
+		<!-- Surfaces -->
+		<SolidColorBrush x:Key="AppBackgroundBrush">#121212</SolidColorBrush>
+		<SolidColorBrush x:Key="PanelBackgroundBrush">#1C1C1C</SolidColorBrush>
+		<SolidColorBrush x:Key="PanelBorderBrush">#2A2A2A</SolidColorBrush>
+
+		<!-- Text -->
 		<SolidColorBrush x:Key="TextPrimaryBrush">#EAEAEA</SolidColorBrush>
+		<SolidColorBrush x:Key="TextMutedBrush">#BDBDBD</SolidColorBrush>
 	</Styles.Resources>
 
 </Styles>

@@ -1,0 +1,67 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="LpAutomation.Desktop.Avalonia.Views.MainWindow"
+        Width="1200"
+        Height="760"
+        Title="{Binding Title}"
+        Background="{StaticResource AppBackgroundBrush}">
+
+	<Grid RowDefinitions="Auto,*" ColumnDefinitions="280,*">
+
+		<!-- Top bar -->
+		<Border Grid.Row="0"
+				Grid.ColumnSpan="2"
+				Background="{StaticResource BrandPrimaryBrush}"
+				Padding="16,10">
+			<TextBlock Text="{Binding CurrentPageTitle}"
+					   FontSize="20"
+					   FontWeight="SemiBold"
+					   Foreground="White"/>
+		</Border>
+
+		<!-- Left nav -->
+		<Border Grid.Row="1"
+				Grid.Column="0"
+				Background="{StaticResource PanelBackgroundBrush}"
+				BorderBrush="{StaticResource PanelBorderBrush}"
+				BorderThickness="0,1,1,0"
+				Padding="12">
+			<StackPanel Spacing="8">
+				<TextBlock Text="LP Automation"
+						   FontSize="18"
+						   FontWeight="SemiBold"
+						   Foreground="{StaticResource TextPrimaryBrush}" />
+
+				<TextBlock Text="{Binding Subtitle}"
+						   Foreground="{StaticResource TextMutedBrush}"
+						   Margin="0,0,0,12"/>
+
+				<ItemsControl ItemsSource="{Binding NavItems}">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+									CommandParameter="{Binding}"
+									HorizontalAlignment="Stretch"
+									Margin="0,4,0,0">
+								<TextBlock Text="{Binding Title}" />
+							</Button>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+			</StackPanel>
+		</Border>
+
+		<!-- Main content -->
+		<Border Grid.Row="1"
+				Grid.Column="1"
+				BorderBrush="{StaticResource PanelBorderBrush}"
+				BorderThickness="0,1,0,0"
+				Padding="20">
+			<TextBlock Text="{Binding CurrentPageTitle}"
+					   FontSize="28"
+					   FontWeight="SemiBold"
+					   Foreground="{StaticResource TextPrimaryBrush}" />
+		</Border>
+
+	</Grid>
+</Window>

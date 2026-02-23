@@ -1,6 +1,8 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using LpAutomation.Desktop.Avalonia.ViewModels;
+using LpAutomation.Desktop.Avalonia.Views;
 
 namespace LpAutomation.Desktop.Avalonia;
 
@@ -15,7 +17,11 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow();
+            var vm = new ShellViewModel();
+            desktop.MainWindow = new MainWindow
+            {
+                DataContext = vm
+            };
         }
 
         base.OnFrameworkInitializationCompleted();
