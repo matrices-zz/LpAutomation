@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -10,13 +10,25 @@
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.12" />
   </ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
+		<AvaloniaResource Include="**\*.axaml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <AvaloniaXaml Remove="MainWindow.axaml" />
+	</ItemGroup>
+
+
+	<ItemGroup>
     <ProjectReference Include="..\LpAutomation.Contracts\LpAutomation.Contracts.csproj" />
     <ProjectReference Include="..\LpAutomation.Core\LpAutomation.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Styles\" />
-  </ItemGroup>
+
+	<ItemGroup>
+	  <AvaloniaResource Update="MainWindow.axaml">
+	    <SubType>Designer</SubType>
+	  </AvaloniaResource>
+	</ItemGroup>
 
 </Project>
