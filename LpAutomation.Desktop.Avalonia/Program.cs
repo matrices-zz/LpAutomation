@@ -3,7 +3,7 @@ using System;
 
 namespace LpAutomation.Desktop.Avalonia;
 
-class Program
+internal sealed class Program
 {
     [STAThread]
     public static void Main(string[] args) =>

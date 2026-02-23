@@ -1,12 +1,12 @@
-﻿<ItemGroup>
-	<AvaloniaResource Include="Styles\Theme.axaml" />
-</ItemGroup>
-
-<Styles xmlns="https://github.com/avaloniaui"
+﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-	<!-- Example theme token -->
-	<Color x:Key="AccentPurple">#7E57C2</Color>
+	<Styles.Resources>
+		<SolidColorBrush x:Key="AccentPurple">#7E57C2</SolidColorBrush>
+		<SolidColorBrush x:Key="AccentLime">#9CCC65</SolidColorBrush>
+		<SolidColorBrush x:Key="SurfaceCardBrush">#1E1E1E</SolidColorBrush>
+		<SolidColorBrush x:Key="SurfaceBorderBrush">#2A2A2A</SolidColorBrush>
+		<SolidColorBrush x:Key="TextPrimaryBrush">#EAEAEA</SolidColorBrush>
+	</Styles.Resources>
 
 </Styles>
-

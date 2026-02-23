@@ -3,6 +3,6 @@
              x:Class="LpAutomation.Desktop.Avalonia.App">
 	<Application.Styles>
 		<FluentTheme />
-		<StyleInclude Source="avares://LpAutomation.Desktop.Avalonia/Styles/Theme.axaml"/>
+		<StyleInclude Source="avares://LpAutomation.Desktop.Avalonia/Styles/Themes.axaml"/>
 	</Application.Styles>
 </Application>

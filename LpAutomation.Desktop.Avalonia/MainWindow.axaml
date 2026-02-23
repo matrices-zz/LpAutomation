@@ -3,8 +3,5 @@
         x:Class="LpAutomation.Desktop.Avalonia.MainWindow"
         Width="1000" Height="700"
         Title="LP Automation (Avalonia)">
-	<StackPanel Margin="24" Spacing="12">
-		<TextBlock FontSize="28" Text="LP Automation" />
-		<TextBlock Text="Avalonia Phase 1 shell is running." />
-	</StackPanel>
+	<TextBlock Margin="24" FontSize="24" Text="Avalonia boot successful" />
 </Window>
