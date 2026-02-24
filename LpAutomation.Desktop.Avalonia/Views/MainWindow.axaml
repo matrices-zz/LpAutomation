@@ -86,6 +86,17 @@
 					   FontSize="28"
 					   FontWeight="SemiBold"
 					   Foreground="{StaticResource TextPrimaryBrush}" />
+			<StackPanel Spacing="10">
+				<TextBlock Text="{Binding CurrentPageTitle}"
+						   FontSize="28"
+						   FontWeight="SemiBold"
+						   Foreground="{StaticResource TextPrimaryBrush}" />
+
+				<TextBlock Text="{Binding StatusMessage}"
+						   FontSize="14"
+						   Foreground="{StaticResource TextMutedBrush}" />
+			</StackPanel>
+
 		</Border>
 
 	</Grid>
