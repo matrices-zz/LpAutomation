@@ -1,10 +1,15 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:LpAutomation.Desktop.Avalonia.Converters"
         x:Class="LpAutomation.Desktop.Avalonia.Views.MainWindow"
         Width="1200"
         Height="760"
         Title="{Binding Title}"
         Background="{StaticResource AppBackgroundBrush}">
+
+	<Window.Resources>
+		<conv:StatusKindToBrushConverter x:Key="StatusKindToBrushConverter" />
+	</Window.Resources>
 
 	<Grid RowDefinitions="Auto,*" ColumnDefinitions="280,*">
 
@@ -67,17 +72,69 @@
 				BorderBrush="{StaticResource PanelBorderBrush}"
 				BorderThickness="0,1,0,0"
 				Padding="20">
-			<StackPanel Spacing="10">
+			<StackPanel Spacing="12">
+
 				<TextBlock Text="{Binding CurrentPageTitle}"
 						   FontSize="28"
 						   FontWeight="SemiBold"
 						   Foreground="{StaticResource TextPrimaryBrush}" />
 
-				<TextBlock Text="{Binding StatusMessage}"
-						   FontSize="14"
-						   Foreground="{StaticResource TextMutedBrush}" />
+				<!-- status row -->
+				<Border Background="{StaticResource PanelBackgroundBrush}"
+						BorderBrush="{StaticResource PanelBorderBrush}"
+						BorderThickness="1"
+						CornerRadius="8"
+						Padding="12">
+					<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+						<Ellipse Width="10"
+								 Height="10"
+								 Fill="{Binding StatusKind, Converter={StaticResource StatusKindToBrushConverter}}"
+								 VerticalAlignment="Center"
+								 Margin="0,0,10,0"/>
+						<TextBlock Grid.Column="1"
+								   Text="{Binding StatusMessage}"
+								   FontSize="14"
+								   Foreground="{StaticResource TextPrimaryBrush}" />
+
+						<StackPanel Grid.Row="1"
+									Grid.ColumnSpan="2"
+									Orientation="Horizontal"
+									Spacing="16"
+									Margin="0,8,0,0">
+							<TextBlock Text="{Binding LastPayloadChars, StringFormat='Payload: {0} chars'}"
+									   Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding LastElapsedMs, StringFormat='Latency: {0:F0} ms'}"
+									   Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding StatusKind, StringFormat='State: {0}'}"
+									   Foreground="{StaticResource TextMutedBrush}" />
+						</StackPanel>
+					</Grid>
+				</Border>
+
+				<!-- response preview -->
+				<Border Background="{StaticResource PanelBackgroundBrush}"
+						BorderBrush="{StaticResource PanelBorderBrush}"
+						BorderThickness="1"
+						CornerRadius="8"
+						Padding="12">
+					<StackPanel Spacing="8">
+						<TextBlock Text="API Preview (truncated)"
+								   FontSize="16"
+								   FontWeight="SemiBold"
+								   Foreground="{StaticResource TextPrimaryBrush}" />
+
+						<ScrollViewer Height="360">
+							<TextBlock Text="{Binding LastApiPreview}"
+									   TextWrapping="Wrap"
+									   FontFamily="Consolas"
+									   Foreground="{StaticResource TextPrimaryBrush}" />
+						</ScrollViewer>
+					</StackPanel>
+				</Border>
+
 			</StackPanel>
 		</Border>
 
 	</Grid>
+
 </Window>

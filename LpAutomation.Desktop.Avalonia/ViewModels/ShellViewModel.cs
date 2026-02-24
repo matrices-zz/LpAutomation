@@ -1,9 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using LpAutomation.Desktop.Avalonia.Services;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using LpAutomation.Desktop.Avalonia.Services;
 
 namespace LpAutomation.Desktop.Avalonia.ViewModels;
 
@@ -17,7 +17,7 @@ public partial class ShellViewModel : ObservableObject
     private string _title = "LP Automation — Avalonia";
 
     [ObservableProperty]
-    private string _subtitle = "Desktop MVP (Phase 1!)";
+    private string _subtitle = "Desktop MVP (Phase 1.8)";
 
     [ObservableProperty]
     private string _currentPageTitle = "Dashboard";
@@ -28,13 +28,24 @@ public partial class ShellViewModel : ObservableObject
     [ObservableProperty]
     private bool _isBusy;
 
+    [ObservableProperty]
+    private string _statusKind = "Neutral"; // Neutral | Running | Success | Error
+
+    [ObservableProperty]
+    private int _lastPayloadChars;
+
+    [ObservableProperty]
+    private double _lastElapsedMs;
+
+    [ObservableProperty]
+    private string _lastApiPreview = "No data yet.";
 
     public ObservableCollection<NavItem> NavItems { get; } = new();
 
     public ShellViewModel(
-    ConfigApiClient configApi,
-    RecommendationsApiClient recsApi,
-    IFileDialogService files)
+        ConfigApiClient configApi,
+        RecommendationsApiClient recsApi,
+        IFileDialogService files)
     {
         _configApi = configApi;
         _recsApi = recsApi;
@@ -46,15 +57,12 @@ public partial class ShellViewModel : ObservableObject
         NavItems.Add(new NavItem("Settings", "settings"));
     }
 
-
     [RelayCommand]
     private void Navigate(NavItem item)
     {
         CurrentPageTitle = item.Title;
         Title = $"LP Automation — {item.Title}";
     }
-
-    public sealed record NavItem(string Title, string IconKey);
 
     [RelayCommand]
     private async Task TestApiAsync()
@@ -63,19 +71,29 @@ public partial class ShellViewModel : ObservableObject
             return;
 
         IsBusy = true;
+        StatusKind = "Running";
         StatusMessage = "Calling /api/recommendations...";
 
         try
         {
             var started = DateTimeOffset.UtcNow;
             var raw = await _recsApi.GetLatestRawAsync(20);
-            var elapsedMs = (DateTimeOffset.UtcNow - started).TotalMilliseconds;
+            var elapsed = (DateTimeOffset.UtcNow - started).TotalMilliseconds;
 
-            StatusMessage = $"OK: {raw.Length} chars in {elapsedMs:F0} ms";
+            LastPayloadChars = raw.Length;
+            LastElapsedMs = elapsed;
+            LastApiPreview = raw.Length <= 700 ? raw : raw[..700] + " ...[truncated]";
+
+            StatusKind = "Success";
+            StatusMessage = $"OK: {LastPayloadChars} chars in {LastElapsedMs:F0} ms";
         }
         catch (Exception ex)
         {
+            StatusKind = "Error";
             StatusMessage = $"API error: {ex.Message}";
+            LastApiPreview = "(No response body captured due to error.)";
+            LastPayloadChars = 0;
+            LastElapsedMs = 0;
         }
         finally
         {
@@ -83,5 +101,5 @@ public partial class ShellViewModel : ObservableObject
         }
     }
 
+    public sealed record NavItem(string Title, string IconKey);
 }
-
