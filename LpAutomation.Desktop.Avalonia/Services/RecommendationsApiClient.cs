@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
@@ -16,8 +17,9 @@ public sealed class RecommendationsApiClient
     {
         var url = $"api/recommendations?take={take}";
         var data = await _http.GetFromJsonAsync<List<RecommendationDto>>(url, cancellationToken: ct);
-        return data ?? Array.Empty<RecommendationDto>();
+        return data ?? new List<RecommendationDto>();
     }
+
 
     // keep your raw call too if you still use it elsewhere
     public async Task<string> GetLatestRawAsync(int take = 50)

@@ -31,13 +31,7 @@ public partial class App : Application
         services.AddSingleton(new ConfigApiClient(http));
         services.AddSingleton(new RecommendationsApiClient(http));
         services.AddSingleton<IFileDialogService>(new AvaloniaFileDialogService());
-
-        services.AddTransient<ShellViewModel>(() =>
-            new ShellViewModel(
-                services.Get<ConfigApiClient>(),
-                services.Get<RecommendationsApiClient>(),
-                services.Get<IFileDialogService>()));
-
+             
         services.AddTransient<RecommendationsPageViewModel>(() =>
     new RecommendationsPageViewModel(services.Get<RecommendationsApiClient>()));
 
