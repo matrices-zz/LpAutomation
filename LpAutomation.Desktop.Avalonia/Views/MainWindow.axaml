@@ -1,6 +1,8 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:conv="clr-namespace:LpAutomation.Desktop.Avalonia.Converters"
+        xmlns:vm="clr-namespace:LpAutomation.Desktop.Avalonia.ViewModels"
+        xmlns:views="clr-namespace:LpAutomation.Desktop.Avalonia.Views"
         x:Class="LpAutomation.Desktop.Avalonia.Views.MainWindow"
         Width="1240"
         Height="800"
@@ -12,6 +14,11 @@
 	<Window.Resources>
 		<conv:StatusKindToBrushConverter x:Key="StatusKindToBrushConverter" />
 		<conv:StatusKindToLabelConverter x:Key="StatusKindToLabelConverter" />
+
+		<!-- Phase 2.0 page mapping -->
+		<DataTemplate DataType="vm:RecommendationsPageViewModel">
+			<views:RecommendationsPageView />
+		</DataTemplate>
 	</Window.Resources>
 
 	<Window.Styles>
@@ -41,7 +48,7 @@
 						   Foreground="White"
 						   VerticalAlignment="Center"/>
 
-				<!-- You can bind Content to TestApiButtonText if you add that property in VM -->
+				<!-- keep bound to command that already exists in ShellViewModel -->
 				<Button Grid.Column="1"
 						Content="Test API"
 						Command="{Binding TestApiCommand}"
@@ -183,25 +190,13 @@
 						CornerRadius="10"
 						Padding="12">
 					<Grid ColumnDefinitions="Auto,Auto,*" RowDefinitions="Auto,Auto">
-
-						<!-- Dot can pulse by toggling opacity/scale in VM later if desired -->
 						<Ellipse x:Name="StatusDot"
 								 Width="10"
 								 Height="10"
 								 Fill="{Binding StatusKind, Converter={StaticResource StatusKindToBrushConverter}}"
 								 VerticalAlignment="Center"
 								 Margin="0,0,10,0"
-								 Opacity="1.0"
-								 RenderTransformOrigin="0.5,0.5">
-							<Ellipse.RenderTransform>
-								<ScaleTransform ScaleX="1" ScaleY="1" />
-							</Ellipse.RenderTransform>
-							<Ellipse.Transitions>
-								<Transitions>
-									<DoubleTransition Property="Opacity" Duration="0:0:0.18"/>
-								</Transitions>
-							</Ellipse.Transitions>
-						</Ellipse>
+								 Opacity="1.0" />
 
 						<Border x:Name="StatusChip"
 								Grid.Column="1"
@@ -231,27 +226,13 @@
 					</Grid>
 				</Border>
 
-				<!-- JSON preview -->
+				<!-- Phase 2.0: dynamic page host (replaces static JSON panel) -->
 				<Border Background="{StaticResource JsonPanelBrush}"
 						BorderBrush="{StaticResource JsonBorderBrush}"
 						BorderThickness="1"
 						CornerRadius="10"
 						Padding="12">
-					<StackPanel Spacing="8">
-						<TextBlock Text="{Binding PreviewTitle}"
-								   FontSize="16"
-								   FontWeight="SemiBold"
-								   Foreground="{StaticResource TextPrimaryBrush}" />
-
-						<ScrollViewer Height="380">
-							<TextBlock Text="{Binding LastApiPreview}"
-									   TextWrapping="Wrap"
-									   FontFamily="Consolas"
-									   FontSize="13"
-									   LineHeight="20"
-									   Foreground="{StaticResource JsonTextBrush}" />
-						</ScrollViewer>
-					</StackPanel>
+					<ContentControl Content="{Binding CurrentPage}" />
 				</Border>
 
 			</StackPanel>

@@ -38,6 +38,16 @@ public partial class App : Application
                 services.Get<RecommendationsApiClient>(),
                 services.Get<IFileDialogService>()));
 
+        services.AddTransient<RecommendationsPageViewModel>(() =>
+    new RecommendationsPageViewModel(services.Get<RecommendationsApiClient>()));
+
+        services.AddTransient<ShellViewModel>(() =>
+            new ShellViewModel(
+                services.Get<ConfigApiClient>(),
+                services.Get<RecommendationsApiClient>(),
+                services.Get<IFileDialogService>(),
+                services.Get<RecommendationsPageViewModel>()));
+
         Services = services;
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)

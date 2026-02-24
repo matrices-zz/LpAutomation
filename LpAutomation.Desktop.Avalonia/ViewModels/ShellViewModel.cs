@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LpAutomation.Desktop.Avalonia.Services;
+using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace LpAutomation.Desktop.Avalonia.ViewModels;
 
@@ -12,16 +12,21 @@ public partial class ShellViewModel : ObservableObject
     private readonly ConfigApiClient _configApi;
     private readonly RecommendationsApiClient _recsApi;
     private readonly IFileDialogService _files;
+    private readonly RecommendationsPageViewModel _recommendationsPage;
 
     [ObservableProperty]
     private string _title = "LP Automation — Avalonia";
 
     [ObservableProperty]
-    private string _subtitle = "Desktop MVP (Phase 1.8)";
+    private string _subtitle = "Desktop MVP (Phase 2.0)";
 
     [ObservableProperty]
-    private string _currentPageTitle = "Dashboard";
+    private string _currentPageTitle = "Recommendations";
 
+    [ObservableProperty]
+    private object? _currentPage;
+
+    // Keep these from your current shell diagnostics flow
     [ObservableProperty]
     private string _statusMessage = "Ready";
 
@@ -38,9 +43,6 @@ public partial class ShellViewModel : ObservableObject
     private double _lastElapsedMs;
 
     [ObservableProperty]
-    private string _lastApiPreview = "No data yet.";
-   
-    [ObservableProperty]
     private int _apiCallCount;
 
     [ObservableProperty]
@@ -53,34 +55,41 @@ public partial class ShellViewModel : ObservableObject
     private string _previewTitle = "API Preview (truncated)";
 
     [ObservableProperty]
-    private string _testApiButtonText = "Test API";
+    private string _lastApiPreview = "No data yet.";
 
     public ObservableCollection<NavItem> NavItems { get; } = new();
 
     public ShellViewModel(
         ConfigApiClient configApi,
         RecommendationsApiClient recsApi,
-        IFileDialogService files)
+        IFileDialogService files,
+        RecommendationsPageViewModel recommendationsPage)
     {
         _configApi = configApi;
         _recsApi = recsApi;
         _files = files;
+        _recommendationsPage = recommendationsPage;
 
-        NavItems.Add(new NavItem("Dashboard", "dashboard"));
-        NavItems.Add(new NavItem("Recommendations", "star"));
-        NavItems.Add(new NavItem("Config", "file"));
-        NavItems.Add(new NavItem("Settings", "settings"));
+        NavItems.Add(new NavItem("Dashboard", "dashboard", () => null));
+        NavItems.Add(new NavItem("Recommendations", "star", () => _recommendationsPage));
+        NavItems.Add(new NavItem("Config", "file", () => null));
+        NavItems.Add(new NavItem("Settings", "settings", () => null));
+
+        var first = NavItems[1]; // start on Recommendations
+        CurrentPage = first.Create();
+        CurrentPageTitle = first.Title;
+        Title = $"LP Automation — {first.Title}";
     }
 
     [RelayCommand]
     private void Navigate(NavItem item)
     {
+        CurrentPage = item.Create();
         CurrentPageTitle = item.Title;
         Title = $"LP Automation — {item.Title}";
     }
 
     [RelayCommand]
-    
     private async Task TestApiAsync()
     {
         if (IsBusy)
@@ -125,6 +134,5 @@ public partial class ShellViewModel : ObservableObject
         }
     }
 
-
-    public sealed record NavItem(string Title, string IconKey);
+    public sealed record NavItem(string Title, string IconKey, Func<object?> Create);
 }
