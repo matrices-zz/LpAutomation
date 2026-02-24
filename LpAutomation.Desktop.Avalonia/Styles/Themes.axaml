@@ -14,6 +14,13 @@
 		<!-- Text -->
 		<SolidColorBrush x:Key="TextPrimaryBrush">#EAEAEA</SolidColorBrush>
 		<SolidColorBrush x:Key="TextMutedBrush">#BDBDBD</SolidColorBrush>
+
+		<SolidColorBrush x:Key="KpiCardBrush">#1E1E1E</SolidColorBrush>
+		<SolidColorBrush x:Key="KpiBorderBrush">#2F2F2F</SolidColorBrush>
+		<SolidColorBrush x:Key="JsonPanelBrush">#151515</SolidColorBrush>
+		<SolidColorBrush x:Key="JsonBorderBrush">#303030</SolidColorBrush>
+		<SolidColorBrush x:Key="JsonTextBrush">#D8D8D8</SolidColorBrush>
+
 	</Styles.Resources>
 
 </Styles>

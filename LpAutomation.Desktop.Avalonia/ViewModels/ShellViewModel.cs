@@ -39,6 +39,19 @@ public partial class ShellViewModel : ObservableObject
 
     [ObservableProperty]
     private string _lastApiPreview = "No data yet.";
+   
+    [ObservableProperty]
+    private int _apiCallCount;
+
+    [ObservableProperty]
+    private int _apiErrorCount;
+
+    [ObservableProperty]
+    private string _lastUpdatedUtc = "-";
+
+    [ObservableProperty]
+    private string _previewTitle = "API Preview (truncated)";
+
 
     public ObservableCollection<NavItem> NavItems { get; } = new();
 
@@ -65,6 +78,7 @@ public partial class ShellViewModel : ObservableObject
     }
 
     [RelayCommand]
+    
     private async Task TestApiAsync()
     {
         if (IsBusy)
@@ -80,8 +94,11 @@ public partial class ShellViewModel : ObservableObject
             var raw = await _recsApi.GetLatestRawAsync(20);
             var elapsed = (DateTimeOffset.UtcNow - started).TotalMilliseconds;
 
+            ApiCallCount++;
             LastPayloadChars = raw.Length;
             LastElapsedMs = elapsed;
+            LastUpdatedUtc = DateTimeOffset.UtcNow.ToString("u");
+            PreviewTitle = "API Preview (truncated to 700 chars)";
             LastApiPreview = raw.Length <= 700 ? raw : raw[..700] + " ...[truncated]";
 
             StatusKind = "Success";
@@ -89,8 +106,13 @@ public partial class ShellViewModel : ObservableObject
         }
         catch (Exception ex)
         {
+            ApiCallCount++;
+            ApiErrorCount++;
+            LastUpdatedUtc = DateTimeOffset.UtcNow.ToString("u");
+
             StatusKind = "Error";
             StatusMessage = $"API error: {ex.Message}";
+            PreviewTitle = "API Preview (error)";
             LastApiPreview = "(No response body captured due to error.)";
             LastPayloadChars = 0;
             LastElapsedMs = 0;
@@ -100,6 +122,7 @@ public partial class ShellViewModel : ObservableObject
             IsBusy = false;
         }
     }
+
 
     public sealed record NavItem(string Title, string IconKey);
 }

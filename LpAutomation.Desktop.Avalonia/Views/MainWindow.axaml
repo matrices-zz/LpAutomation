@@ -11,6 +11,10 @@
 		<conv:StatusKindToBrushConverter x:Key="StatusKindToBrushConverter" />
 	</Window.Resources>
 
+	<Window.Resources>
+		<conv:StatusKindToLabelConverter x:Key="StatusKindToLabelConverter" />
+	</Window.Resources>
+
 	<Grid RowDefinitions="Auto,*" ColumnDefinitions="280,*">
 
 		<!-- Top bar -->
@@ -68,10 +72,10 @@
 
 		<!-- Main content -->
 		<Border Grid.Row="1"
-				Grid.Column="1"
-				BorderBrush="{StaticResource PanelBorderBrush}"
-				BorderThickness="0,1,0,0"
-				Padding="20">
+        Grid.Column="1"
+        BorderBrush="{StaticResource PanelBorderBrush}"
+        BorderThickness="0,1,0,0"
+        Padding="20">
 			<StackPanel Spacing="12">
 
 				<TextBlock Text="{Binding CurrentPageTitle}"
@@ -79,46 +83,102 @@
 						   FontWeight="SemiBold"
 						   Foreground="{StaticResource TextPrimaryBrush}" />
 
-				<!-- status row -->
+				<!-- KPI strip -->
+				<Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
+					<Border Grid.Column="0"
+							Background="{StaticResource KpiCardBrush}"
+							BorderBrush="{StaticResource KpiBorderBrush}"
+							BorderThickness="1"
+							CornerRadius="8"
+							Padding="10">
+						<StackPanel>
+							<TextBlock Text="Calls" Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding ApiCallCount}" FontSize="22" FontWeight="SemiBold" />
+						</StackPanel>
+					</Border>
+
+					<Border Grid.Column="1"
+							Background="{StaticResource KpiCardBrush}"
+							BorderBrush="{StaticResource KpiBorderBrush}"
+							BorderThickness="1"
+							CornerRadius="8"
+							Padding="10">
+						<StackPanel>
+							<TextBlock Text="Errors" Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding ApiErrorCount}" FontSize="22" FontWeight="SemiBold" />
+						</StackPanel>
+					</Border>
+
+					<Border Grid.Column="2"
+							Background="{StaticResource KpiCardBrush}"
+							BorderBrush="{StaticResource KpiBorderBrush}"
+							BorderThickness="1"
+							CornerRadius="8"
+							Padding="10">
+						<StackPanel>
+							<TextBlock Text="Payload" Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding LastPayloadChars, StringFormat='{}{0} chars'}" FontSize="22" FontWeight="SemiBold" />
+						</StackPanel>
+					</Border>
+
+					<Border Grid.Column="3"
+							Background="{StaticResource KpiCardBrush}"
+							BorderBrush="{StaticResource KpiBorderBrush}"
+							BorderThickness="1"
+							CornerRadius="8"
+							Padding="10">
+						<StackPanel>
+							<TextBlock Text="Latency" Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding LastElapsedMs, StringFormat='{}{0:F0} ms'}" FontSize="22" FontWeight="SemiBold" />
+						</StackPanel>
+					</Border>
+				</Grid>
+
+				<!-- status card -->
 				<Border Background="{StaticResource PanelBackgroundBrush}"
 						BorderBrush="{StaticResource PanelBorderBrush}"
 						BorderThickness="1"
 						CornerRadius="8"
 						Padding="12">
-					<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+					<Grid ColumnDefinitions="Auto,Auto,*" RowDefinitions="Auto,Auto">
 						<Ellipse Width="10"
 								 Height="10"
 								 Fill="{Binding StatusKind, Converter={StaticResource StatusKindToBrushConverter}}"
 								 VerticalAlignment="Center"
 								 Margin="0,0,10,0"/>
-						<TextBlock Grid.Column="1"
+
+						<Border Grid.Column="1"
+								Background="{Binding StatusKind, Converter={StaticResource StatusKindToBrushConverter}}"
+								CornerRadius="10"
+								Padding="8,2"
+								Margin="0,0,10,0">
+							<TextBlock Text="{Binding StatusKind, Converter={StaticResource StatusKindToLabelConverter}}"
+									   FontWeight="SemiBold"
+									   Foreground="Black"/>
+						</Border>
+
+						<TextBlock Grid.Column="2"
 								   Text="{Binding StatusMessage}"
 								   FontSize="14"
+								   VerticalAlignment="Center"
 								   Foreground="{StaticResource TextPrimaryBrush}" />
 
-						<StackPanel Grid.Row="1"
-									Grid.ColumnSpan="2"
-									Orientation="Horizontal"
-									Spacing="16"
-									Margin="0,8,0,0">
-							<TextBlock Text="{Binding LastPayloadChars, StringFormat='Payload: {0} chars'}"
-									   Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding LastElapsedMs, StringFormat='Latency: {0:F0} ms'}"
-									   Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding StatusKind, StringFormat='State: {0}'}"
-									   Foreground="{StaticResource TextMutedBrush}" />
-						</StackPanel>
+						<TextBlock Grid.Row="1"
+								   Grid.ColumnSpan="3"
+								   Margin="0,8,0,0"
+								   Text="{Binding LastUpdatedUtc, StringFormat='Last Updated (UTC): {0}'}"
+								   Foreground="{StaticResource TextMutedBrush}" />
 					</Grid>
 				</Border>
 
-				<!-- response preview -->
-				<Border Background="{StaticResource PanelBackgroundBrush}"
-						BorderBrush="{StaticResource PanelBorderBrush}"
+				<!-- JSON preview -->
+				<Border Background="{StaticResource JsonPanelBrush}"
+						BorderBrush="{StaticResource JsonBorderBrush}"
 						BorderThickness="1"
 						CornerRadius="8"
 						Padding="12">
 					<StackPanel Spacing="8">
-						<TextBlock Text="API Preview (truncated)"
+						<TextBlock Text="{Binding PreviewTitle}"
 								   FontSize="16"
 								   FontWeight="SemiBold"
 								   Foreground="{StaticResource TextPrimaryBrush}" />
@@ -127,13 +187,14 @@
 							<TextBlock Text="{Binding LastApiPreview}"
 									   TextWrapping="Wrap"
 									   FontFamily="Consolas"
-									   Foreground="{StaticResource TextPrimaryBrush}" />
+									   Foreground="{StaticResource JsonTextBrush}" />
 						</ScrollViewer>
 					</StackPanel>
 				</Border>
 
 			</StackPanel>
 		</Border>
+
 
 	</Grid>
 

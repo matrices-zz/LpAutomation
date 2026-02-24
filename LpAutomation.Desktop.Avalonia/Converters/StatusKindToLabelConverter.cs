@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
-using Avalonia.Media;
 
 namespace LpAutomation.Desktop.Avalonia.Converters;
 
-public sealed class StatusKindToBrushConverter : IValueConverter
+public sealed class StatusKindToLabelConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         var key = value?.ToString() ?? "Neutral";
-
         return key switch
         {
-            "Running" => new SolidColorBrush(Color.Parse("#90CAF9")), // blue
-            "Success" => new SolidColorBrush(Color.Parse("#81C784")), // green
-            "Error" => new SolidColorBrush(Color.Parse("#EF9A9A")),   // red
-            _ => new SolidColorBrush(Color.Parse("#BDBDBD"))          // gray
+            "Running" => "RUNNING",
+            "Success" => "SUCCESS",
+            "Error" => "ERROR",
+            _ => "IDLE"
         };
     }
 
