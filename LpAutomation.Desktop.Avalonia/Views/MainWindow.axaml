@@ -9,9 +9,6 @@
 
 	<Window.Resources>
 		<conv:StatusKindToBrushConverter x:Key="StatusKindToBrushConverter" />
-	</Window.Resources>
-
-	<Window.Resources>
 		<conv:StatusKindToLabelConverter x:Key="StatusKindToLabelConverter" />
 	</Window.Resources>
 
@@ -84,16 +81,16 @@
 						   Foreground="{StaticResource TextPrimaryBrush}" />
 
 				<!-- KPI strip -->
-				<Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
+				<Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
 					<Border Grid.Column="0"
 							Background="{StaticResource KpiCardBrush}"
 							BorderBrush="{StaticResource KpiBorderBrush}"
 							BorderThickness="1"
-							CornerRadius="8"
-							Padding="10">
+							CornerRadius="10"
+							Padding="12">
 						<StackPanel>
-							<TextBlock Text="Calls" Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding ApiCallCount}" FontSize="22" FontWeight="SemiBold" />
+							<TextBlock Text="Calls" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding ApiCallCount}" FontSize="24" FontWeight="SemiBold" FontFamily="Consolas" />
 						</StackPanel>
 					</Border>
 
@@ -101,11 +98,11 @@
 							Background="{StaticResource KpiCardBrush}"
 							BorderBrush="{StaticResource KpiBorderBrush}"
 							BorderThickness="1"
-							CornerRadius="8"
-							Padding="10">
+							CornerRadius="10"
+							Padding="12">
 						<StackPanel>
-							<TextBlock Text="Errors" Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding ApiErrorCount}" FontSize="22" FontWeight="SemiBold" />
+							<TextBlock Text="Errors" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding ApiErrorCount}" FontSize="24" FontWeight="SemiBold" FontFamily="Consolas" />
 						</StackPanel>
 					</Border>
 
@@ -113,11 +110,11 @@
 							Background="{StaticResource KpiCardBrush}"
 							BorderBrush="{StaticResource KpiBorderBrush}"
 							BorderThickness="1"
-							CornerRadius="8"
-							Padding="10">
+							CornerRadius="10"
+							Padding="12">
 						<StackPanel>
-							<TextBlock Text="Payload" Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding LastPayloadChars, StringFormat='{}{0} chars'}" FontSize="22" FontWeight="SemiBold" />
+							<TextBlock Text="Payload" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding LastPayloadChars, StringFormat='{}{0} chars'}" FontSize="24" FontWeight="SemiBold" FontFamily="Consolas" />
 						</StackPanel>
 					</Border>
 
@@ -125,11 +122,11 @@
 							Background="{StaticResource KpiCardBrush}"
 							BorderBrush="{StaticResource KpiBorderBrush}"
 							BorderThickness="1"
-							CornerRadius="8"
-							Padding="10">
+							CornerRadius="10"
+							Padding="12">
 						<StackPanel>
-							<TextBlock Text="Latency" Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding LastElapsedMs, StringFormat='{}{0:F0} ms'}" FontSize="22" FontWeight="SemiBold" />
+							<TextBlock Text="Latency" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding LastElapsedMs, StringFormat='{}{0:F0} ms'}" FontSize="24" FontWeight="SemiBold" FontFamily="Consolas" />
 						</StackPanel>
 					</Border>
 				</Grid>
@@ -138,7 +135,7 @@
 				<Border Background="{StaticResource PanelBackgroundBrush}"
 						BorderBrush="{StaticResource PanelBorderBrush}"
 						BorderThickness="1"
-						CornerRadius="8"
+						CornerRadius="10"
 						Padding="12">
 					<Grid ColumnDefinitions="Auto,Auto,*" RowDefinitions="Auto,Auto">
 						<Ellipse Width="10"
@@ -175,7 +172,7 @@
 				<Border Background="{StaticResource JsonPanelBrush}"
 						BorderBrush="{StaticResource JsonBorderBrush}"
 						BorderThickness="1"
-						CornerRadius="8"
+						CornerRadius="10"
 						Padding="12">
 					<StackPanel Spacing="8">
 						<TextBlock Text="{Binding PreviewTitle}"
