@@ -3,20 +3,8 @@
         x:Class="LpAutomation.Desktop.Avalonia.Views.MainWindow"
         Width="1200"
         Height="760"
-        Title="{Binding Title}">
-
-	<StackPanel Spacing="10">
-		<TextBlock Text="{Binding CurrentPageTitle}"
-				   FontSize="28"
-				   FontWeight="SemiBold"
-				   Foreground="{StaticResource TextPrimaryBrush}" />
-
-		<TextBlock Text="{Binding StatusMessage}"
-				   FontSize="14"
-				   Foreground="{StaticResource TextMutedBrush}" />
-	</StackPanel>
-
-	Background="{StaticResource AppBackgroundBrush}">
+        Title="{Binding Title}"
+        Background="{StaticResource AppBackgroundBrush}">
 
 	<Grid RowDefinitions="Auto,*" ColumnDefinitions="280,*">
 
@@ -36,12 +24,9 @@
 				<Button Grid.Column="1"
 						Content="Test API"
 						Command="{Binding TestApiCommand}"
-						IsEnabled="{Binding IsBusy, Converter={x:Static Avalonia.Controls.Converters.BoolConverters.Not}}"
 						Margin="12,0,0,0"
 						Padding="14,8"/>
 			</Grid>
-
-
 		</Border>
 
 		<!-- Left nav -->
@@ -82,10 +67,6 @@
 				BorderBrush="{StaticResource PanelBorderBrush}"
 				BorderThickness="0,1,0,0"
 				Padding="20">
-			<TextBlock Text="{Binding CurrentPageTitle}"
-					   FontSize="28"
-					   FontWeight="SemiBold"
-					   Foreground="{StaticResource TextPrimaryBrush}" />
 			<StackPanel Spacing="10">
 				<TextBlock Text="{Binding CurrentPageTitle}"
 						   FontSize="28"
@@ -96,7 +77,6 @@
 						   FontSize="14"
 						   Foreground="{StaticResource TextMutedBrush}" />
 			</StackPanel>
-
 		</Border>
 
 	</Grid>
