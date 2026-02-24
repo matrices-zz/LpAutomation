@@ -52,6 +52,8 @@ public partial class ShellViewModel : ObservableObject
     [ObservableProperty]
     private string _previewTitle = "API Preview (truncated)";
 
+    [ObservableProperty]
+    private string _testApiButtonText = "Test API";
 
     public ObservableCollection<NavItem> NavItems { get; } = new();
 

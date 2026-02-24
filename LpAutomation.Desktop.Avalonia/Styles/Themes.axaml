@@ -6,21 +6,66 @@
 		<SolidColorBrush x:Key="BrandPrimaryBrush">#7E57C2</SolidColorBrush>
 		<SolidColorBrush x:Key="BrandSecondaryBrush">#9CCC65</SolidColorBrush>
 
-		<!-- Surfaces -->
-		<SolidColorBrush x:Key="AppBackgroundBrush">#121212</SolidColorBrush>
-		<SolidColorBrush x:Key="PanelBackgroundBrush">#1C1C1C</SolidColorBrush>
-		<SolidColorBrush x:Key="PanelBorderBrush">#2A2A2A</SolidColorBrush>
+		<!-- App surfaces -->
+		<SolidColorBrush x:Key="AppBackgroundBrush">#101114</SolidColorBrush>
+		<SolidColorBrush x:Key="PanelBackgroundBrush">#17191E</SolidColorBrush>
+		<SolidColorBrush x:Key="PanelBorderBrush">#2A2E36</SolidColorBrush>
 
 		<!-- Text -->
-		<SolidColorBrush x:Key="TextPrimaryBrush">#EAEAEA</SolidColorBrush>
-		<SolidColorBrush x:Key="TextMutedBrush">#BDBDBD</SolidColorBrush>
+		<SolidColorBrush x:Key="TextPrimaryBrush">#E8EAF0</SolidColorBrush>
+		<SolidColorBrush x:Key="TextMutedBrush">#A8AFBD</SolidColorBrush>
 
-		<SolidColorBrush x:Key="KpiCardBrush">#1E1E1E</SolidColorBrush>
-		<SolidColorBrush x:Key="KpiBorderBrush">#2F2F2F</SolidColorBrush>
-		<SolidColorBrush x:Key="JsonPanelBrush">#151515</SolidColorBrush>
-		<SolidColorBrush x:Key="JsonBorderBrush">#303030</SolidColorBrush>
-		<SolidColorBrush x:Key="JsonTextBrush">#D8D8D8</SolidColorBrush>
+		<!-- KPI / cards -->
+		<SolidColorBrush x:Key="KpiCardBrush">#1B1F26</SolidColorBrush>
+		<SolidColorBrush x:Key="KpiBorderBrush">#313744</SolidColorBrush>
 
+		<!-- JSON preview -->
+		<SolidColorBrush x:Key="JsonPanelBrush">#141820</SolidColorBrush>
+		<SolidColorBrush x:Key="JsonBorderBrush">#2E3542</SolidColorBrush>
+		<SolidColorBrush x:Key="JsonTextBrush">#D6DEEB</SolidColorBrush>
+
+		<!-- Semantic -->
+		<SolidColorBrush x:Key="SuccessBrush">#81C784</SolidColorBrush>
+		<SolidColorBrush x:Key="WarningBrush">#FFD54F</SolidColorBrush>
+		<SolidColorBrush x:Key="ErrorBrush">#EF9A9A</SolidColorBrush>
+		<SolidColorBrush x:Key="InfoBrush">#90CAF9</SolidColorBrush>
 	</Styles.Resources>
+
+	<!-- Global text baseline -->
+	<Style Selector="TextBlock">
+		<Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+		<Setter Property="FontSize" Value="14" />
+	</Style>
+
+	<!-- Polished button baseline -->
+	<Style Selector="Button">
+		<Setter Property="Padding" Value="12,8" />
+		<Setter Property="CornerRadius" Value="8" />
+		<Setter Property="FontWeight" Value="SemiBold" />
+		<Setter Property="Background" Value="#2C313C" />
+		<Setter Property="Foreground" Value="#F1F3F8" />
+		<Setter Property="BorderBrush" Value="#3A4150" />
+		<Setter Property="BorderThickness" Value="1" />
+		<Setter Property="Transitions">
+			<Transitions>
+				<BrushTransition Property="Background" Duration="0:0:0.14" />
+				<BrushTransition Property="BorderBrush" Duration="0:0:0.14" />
+				<DoubleTransition Property="Opacity" Duration="0:0:0.14" />
+			</Transitions>
+		</Setter>
+	</Style>
+
+	<Style Selector="Button:pointerover">
+		<Setter Property="Background" Value="#3A4150" />
+		<Setter Property="BorderBrush" Value="#55607A" />
+	</Style>
+
+	<Style Selector="Button:pressed">
+		<Setter Property="Background" Value="#252A34" />
+	</Style>
+
+	<Style Selector="Button:disabled">
+		<Setter Property="Opacity" Value="0.55" />
+	</Style>
 
 </Styles>

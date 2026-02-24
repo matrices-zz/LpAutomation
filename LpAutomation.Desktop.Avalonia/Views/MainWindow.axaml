@@ -2,8 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:conv="clr-namespace:LpAutomation.Desktop.Avalonia.Converters"
         x:Class="LpAutomation.Desktop.Avalonia.Views.MainWindow"
-        Width="1200"
-        Height="760"
+        Width="1240"
+        Height="800"
+        MinWidth="1080"
+        MinHeight="700"
         Title="{Binding Title}"
         Background="{StaticResource AppBackgroundBrush}">
 
@@ -12,26 +14,40 @@
 		<conv:StatusKindToLabelConverter x:Key="StatusKindToLabelConverter" />
 	</Window.Resources>
 
-	<Grid RowDefinitions="Auto,*" ColumnDefinitions="280,*">
+	<Window.Styles>
+		<!-- Status chip soft transition -->
+		<Style Selector="Border#StatusChip">
+			<Setter Property="Opacity" Value="1" />
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.18"/>
+				</Transitions>
+			</Setter>
+		</Style>
+	</Window.Styles>
+
+	<Grid RowDefinitions="Auto,*" ColumnDefinitions="300,*">
 
 		<!-- Top bar -->
 		<Border Grid.Row="0"
 				Grid.ColumnSpan="2"
 				Background="{StaticResource BrandPrimaryBrush}"
-				Padding="16,10">
+				Padding="18,12">
 			<Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
 				<TextBlock Grid.Column="0"
 						   Text="{Binding CurrentPageTitle}"
-						   FontSize="20"
+						   FontSize="22"
 						   FontWeight="SemiBold"
 						   Foreground="White"
 						   VerticalAlignment="Center"/>
 
+				<!-- You can bind Content to TestApiButtonText if you add that property in VM -->
 				<Button Grid.Column="1"
 						Content="Test API"
 						Command="{Binding TestApiCommand}"
-						Margin="12,0,0,0"
-						Padding="14,8"/>
+						Margin="14,0,0,0"
+						Padding="16,9"
+						FontWeight="SemiBold"/>
 			</Grid>
 		</Border>
 
@@ -41,16 +57,16 @@
 				Background="{StaticResource PanelBackgroundBrush}"
 				BorderBrush="{StaticResource PanelBorderBrush}"
 				BorderThickness="0,1,1,0"
-				Padding="12">
-			<StackPanel Spacing="8">
+				Padding="14">
+			<StackPanel Spacing="10">
 				<TextBlock Text="LP Automation"
-						   FontSize="18"
+						   FontSize="20"
 						   FontWeight="SemiBold"
 						   Foreground="{StaticResource TextPrimaryBrush}" />
 
 				<TextBlock Text="{Binding Subtitle}"
 						   Foreground="{StaticResource TextMutedBrush}"
-						   Margin="0,0,0,12"/>
+						   Margin="0,0,0,14"/>
 
 				<ItemsControl ItemsSource="{Binding NavItems}">
 					<ItemsControl.ItemTemplate>
@@ -58,7 +74,8 @@
 							<Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
 									CommandParameter="{Binding}"
 									HorizontalAlignment="Stretch"
-									Margin="0,4,0,0">
+									Margin="0,4,0,0"
+									Padding="12,10">
 								<TextBlock Text="{Binding Title}" />
 							</Button>
 						</DataTemplate>
@@ -69,14 +86,14 @@
 
 		<!-- Main content -->
 		<Border Grid.Row="1"
-        Grid.Column="1"
-        BorderBrush="{StaticResource PanelBorderBrush}"
-        BorderThickness="0,1,0,0"
-        Padding="20">
-			<StackPanel Spacing="12">
+				Grid.Column="1"
+				BorderBrush="{StaticResource PanelBorderBrush}"
+				BorderThickness="0,1,0,0"
+				Padding="22">
+			<StackPanel Spacing="14">
 
 				<TextBlock Text="{Binding CurrentPageTitle}"
-						   FontSize="28"
+						   FontSize="30"
 						   FontWeight="SemiBold"
 						   Foreground="{StaticResource TextPrimaryBrush}" />
 
@@ -87,10 +104,17 @@
 							BorderBrush="{StaticResource KpiBorderBrush}"
 							BorderThickness="1"
 							CornerRadius="10"
-							Padding="12">
-						<StackPanel>
-							<TextBlock Text="Calls" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding ApiCallCount}" FontSize="24" FontWeight="SemiBold" FontFamily="Consolas" />
+							Padding="12"
+							MinHeight="92">
+						<StackPanel Spacing="4">
+							<TextBlock Text="Calls"
+									   FontSize="12"
+									   Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding ApiCallCount}"
+									   FontSize="26"
+									   FontWeight="SemiBold"
+									   FontFamily="Consolas"
+									   Foreground="{StaticResource TextPrimaryBrush}" />
 						</StackPanel>
 					</Border>
 
@@ -99,10 +123,17 @@
 							BorderBrush="{StaticResource KpiBorderBrush}"
 							BorderThickness="1"
 							CornerRadius="10"
-							Padding="12">
-						<StackPanel>
-							<TextBlock Text="Errors" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding ApiErrorCount}" FontSize="24" FontWeight="SemiBold" FontFamily="Consolas" />
+							Padding="12"
+							MinHeight="92">
+						<StackPanel Spacing="4">
+							<TextBlock Text="Errors"
+									   FontSize="12"
+									   Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding ApiErrorCount}"
+									   FontSize="26"
+									   FontWeight="SemiBold"
+									   FontFamily="Consolas"
+									   Foreground="{StaticResource TextPrimaryBrush}" />
 						</StackPanel>
 					</Border>
 
@@ -111,10 +142,17 @@
 							BorderBrush="{StaticResource KpiBorderBrush}"
 							BorderThickness="1"
 							CornerRadius="10"
-							Padding="12">
-						<StackPanel>
-							<TextBlock Text="Payload" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding LastPayloadChars, StringFormat='{}{0} chars'}" FontSize="24" FontWeight="SemiBold" FontFamily="Consolas" />
+							Padding="12"
+							MinHeight="92">
+						<StackPanel Spacing="4">
+							<TextBlock Text="Payload"
+									   FontSize="12"
+									   Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding LastPayloadChars, StringFormat='{}{0} chars'}"
+									   FontSize="24"
+									   FontWeight="SemiBold"
+									   FontFamily="Consolas"
+									   Foreground="{StaticResource TextPrimaryBrush}" />
 						</StackPanel>
 					</Border>
 
@@ -123,35 +161,59 @@
 							BorderBrush="{StaticResource KpiBorderBrush}"
 							BorderThickness="1"
 							CornerRadius="10"
-							Padding="12">
-						<StackPanel>
-							<TextBlock Text="Latency" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding LastElapsedMs, StringFormat='{}{0:F0} ms'}" FontSize="24" FontWeight="SemiBold" FontFamily="Consolas" />
+							Padding="12"
+							MinHeight="92">
+						<StackPanel Spacing="4">
+							<TextBlock Text="Latency"
+									   FontSize="12"
+									   Foreground="{StaticResource TextMutedBrush}" />
+							<TextBlock Text="{Binding LastElapsedMs, StringFormat='{}{0:F0} ms'}"
+									   FontSize="24"
+									   FontWeight="SemiBold"
+									   FontFamily="Consolas"
+									   Foreground="{StaticResource TextPrimaryBrush}" />
 						</StackPanel>
 					</Border>
 				</Grid>
 
-				<!-- status card -->
+				<!-- Status card -->
 				<Border Background="{StaticResource PanelBackgroundBrush}"
 						BorderBrush="{StaticResource PanelBorderBrush}"
 						BorderThickness="1"
 						CornerRadius="10"
 						Padding="12">
 					<Grid ColumnDefinitions="Auto,Auto,*" RowDefinitions="Auto,Auto">
-						<Ellipse Width="10"
+
+						<!-- Dot can pulse by toggling opacity/scale in VM later if desired -->
+						<Ellipse x:Name="StatusDot"
+								 Width="10"
 								 Height="10"
 								 Fill="{Binding StatusKind, Converter={StaticResource StatusKindToBrushConverter}}"
 								 VerticalAlignment="Center"
-								 Margin="0,0,10,0"/>
+								 Margin="0,0,10,0"
+								 Opacity="1.0"
+								 RenderTransformOrigin="0.5,0.5">
+							<Ellipse.RenderTransform>
+								<ScaleTransform ScaleX="1" ScaleY="1" />
+							</Ellipse.RenderTransform>
+							<Ellipse.Transitions>
+								<Transitions>
+									<DoubleTransition Property="Opacity" Duration="0:0:0.18"/>
+								</Transitions>
+							</Ellipse.Transitions>
+						</Ellipse>
 
-						<Border Grid.Column="1"
+						<Border x:Name="StatusChip"
+								Grid.Column="1"
 								Background="{Binding StatusKind, Converter={StaticResource StatusKindToBrushConverter}}"
-								CornerRadius="10"
-								Padding="8,2"
-								Margin="0,0,10,0">
+								CornerRadius="12"
+								Padding="10,3"
+								Margin="0,0,12,0"
+								VerticalAlignment="Center">
 							<TextBlock Text="{Binding StatusKind, Converter={StaticResource StatusKindToLabelConverter}}"
 									   FontWeight="SemiBold"
-									   Foreground="Black"/>
+									   Foreground="Black"
+									   FontSize="12"/>
 						</Border>
 
 						<TextBlock Grid.Column="2"
@@ -164,7 +226,8 @@
 								   Grid.ColumnSpan="3"
 								   Margin="0,8,0,0"
 								   Text="{Binding LastUpdatedUtc, StringFormat='Last Updated (UTC): {0}'}"
-								   Foreground="{StaticResource TextMutedBrush}" />
+								   Foreground="{StaticResource TextMutedBrush}"
+								   FontSize="12" />
 					</Grid>
 				</Border>
 
@@ -180,10 +243,12 @@
 								   FontWeight="SemiBold"
 								   Foreground="{StaticResource TextPrimaryBrush}" />
 
-						<ScrollViewer Height="360">
+						<ScrollViewer Height="380">
 							<TextBlock Text="{Binding LastApiPreview}"
 									   TextWrapping="Wrap"
 									   FontFamily="Consolas"
+									   FontSize="13"
+									   LineHeight="20"
 									   Foreground="{StaticResource JsonTextBrush}" />
 						</ScrollViewer>
 					</StackPanel>
@@ -192,7 +257,5 @@
 			</StackPanel>
 		</Border>
 
-
 	</Grid>
-
 </Window>
