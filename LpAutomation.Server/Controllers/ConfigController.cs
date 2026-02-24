@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using LpAutomation.Core.Models;
 using LpAutomation.Core.Serialization;
@@ -10,6 +9,8 @@ using LpAutomation.Core.Validation;
 using LpAutomation.Contracts.Config;
 using LpAutomation.Server.Persistence;
 using LpAutomation.Server.Services;
+using LpAutomation.Server.Storage;
+using LpAutomation.Server.Strategy;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LpAutomation.Server.Controllers;
@@ -19,10 +20,19 @@ namespace LpAutomation.Server.Controllers;
 public sealed class ConfigController : ControllerBase
 {
     private readonly IConfigStore _store;
+    private readonly IRecommendationStore _recommendations;
+    private readonly ActivePoolRepository _activePools;
 
-    public ConfigController(IConfigStore store) => _store = store;
+    public ConfigController(
+        IConfigStore store,
+        IRecommendationStore recommendations,
+        ActivePoolRepository activePools)
+    {
+        _store = store;
+        _recommendations = recommendations;
+        _activePools = activePools;
+    }
 
-    // MVP: replace with real identity (Windows auth / token)
     private string Actor => Environment.UserName;
 
     [HttpGet("current")]
@@ -66,7 +76,7 @@ public sealed class ConfigController : ControllerBase
         StrategyConfigDocument? cfg;
         try
         {
-            cfg = System.Text.Json.JsonSerializer.Deserialize<StrategyConfigDocument>(req.Json, JsonStrict.Options);
+            cfg = JsonSerializer.Deserialize<StrategyConfigDocument>(req.Json, JsonStrict.Options);
         }
         catch (Exception ex)
         {
@@ -87,7 +97,10 @@ public sealed class ConfigController : ControllerBase
     public async Task<ActionResult<ConfigHistoryItem[]>> History([FromQuery] int take = 50)
     {
         var versions = await _store.ListVersionsAsync(take);
-        var items = versions.Select(v => new ConfigHistoryItem(v.Id, v.CreatedUtc, v.CreatedBy, v.ConfigHash)).ToArray();
+        var items = versions
+            .Select(v => new ConfigHistoryItem(v.Id, v.CreatedUtc, v.CreatedBy, v.ConfigHash))
+            .ToArray();
+
         return Ok(items);
     }
 
@@ -98,8 +111,49 @@ public sealed class ConfigController : ControllerBase
         return cfg is null ? NotFound() : Ok(cfg);
     }
 
-    // MVP stub. Later: return pools from strategy engine.
     [HttpGet("active-pools")]
-    public ActionResult<ActivePoolDto[]> ActivePools()
-        => Ok(Array.Empty<ActivePoolDto>());
+    public async Task<ActionResult<ActivePoolDto[]>> ActivePools()
+    {
+        // Preferred source: durable DB-backed active pools
+        var durable = await _activePools.ListAsync(500);
+        if (durable.Count > 0)
+        {
+            var fromDb = durable
+                .Select(p => new ActivePoolDto(
+                    ChainId: p.ChainId,
+                    Token0: p.Token0,
+                    Token1: p.Token1,
+                    FeeTier: p.FeeTier,
+                    LastSeenUtc: p.LastSeenUtc,
+                    Source: p.Source,
+                    Status: p.Status))
+                .OrderBy(p => p.ChainId)
+                .ThenBy(p => p.Token0)
+                .ThenBy(p => p.Token1)
+                .ThenBy(p => p.FeeTier)
+                .ToArray();
+
+            return Ok(fromDb);
+        }
+
+        // Fallback: current in-memory recommendation stream
+        var fallback = _recommendations
+            .GetLatest(500)
+            .GroupBy(r => new { r.ChainId, r.Token0, r.Token1, r.FeeTier })
+            .Select(g => new ActivePoolDto(
+                ChainId: g.Key.ChainId,
+                Token0: g.Key.Token0,
+                Token1: g.Key.Token1,
+                FeeTier: g.Key.FeeTier,
+                LastSeenUtc: g.Max(x => x.CreatedUtc),
+                Source: "recommendations-fallback",
+                Status: "active"))
+            .OrderBy(p => p.ChainId)
+            .ThenBy(p => p.Token0)
+            .ThenBy(p => p.Token1)
+            .ThenBy(p => p.FeeTier)
+            .ToArray();
+
+        return Ok(fallback);
+    }
 }

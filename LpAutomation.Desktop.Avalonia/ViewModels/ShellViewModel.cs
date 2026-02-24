@@ -1,9 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using LpAutomation.Desktop.Avalonia.Services;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using LpAutomation.Desktop.Avalonia.Services;
 
 namespace LpAutomation.Desktop.Avalonia.ViewModels;
 
@@ -12,13 +12,14 @@ public partial class ShellViewModel : ObservableObject
     private readonly ConfigApiClient _configApi;
     private readonly RecommendationsApiClient _recsApi;
     private readonly IFileDialogService _files;
+
     private readonly RecommendationsPageViewModel _recommendationsPage;
 
     [ObservableProperty]
     private string _title = "LP Automation — Avalonia";
 
     [ObservableProperty]
-    private string _subtitle = "Desktop MVP (Phase 2.0)";
+    private string _subtitle = "Desktop MVP (Phase 2.1)";
 
     [ObservableProperty]
     private string _currentPageTitle = "Recommendations";
@@ -26,7 +27,7 @@ public partial class ShellViewModel : ObservableObject
     [ObservableProperty]
     private object? _currentPage;
 
-    // Keep these from your current shell diagnostics flow
+    // Global shell health/status (show on all tabs)
     [ObservableProperty]
     private string _statusMessage = "Ready";
 
@@ -57,6 +58,10 @@ public partial class ShellViewModel : ObservableObject
     [ObservableProperty]
     private string _lastApiPreview = "No data yet.";
 
+    // Optional: bind top-right button text
+    [ObservableProperty]
+    private string _testApiButtonText = "Test API";
+
     public ObservableCollection<NavItem> NavItems { get; } = new();
 
     public ShellViewModel(
@@ -70,12 +75,14 @@ public partial class ShellViewModel : ObservableObject
         _files = files;
         _recommendationsPage = recommendationsPage;
 
+        // Keep placeholders for tabs not yet ported
         NavItems.Add(new NavItem("Dashboard", "dashboard", () => null));
         NavItems.Add(new NavItem("Recommendations", "star", () => _recommendationsPage));
         NavItems.Add(new NavItem("Config", "file", () => null));
         NavItems.Add(new NavItem("Settings", "settings", () => null));
 
-        var first = NavItems[1]; // start on Recommendations
+        // Default page
+        var first = NavItems[1]; // Recommendations
         CurrentPage = first.Create();
         CurrentPageTitle = first.Title;
         Title = $"LP Automation — {first.Title}";
@@ -96,6 +103,7 @@ public partial class ShellViewModel : ObservableObject
             return;
 
         IsBusy = true;
+        TestApiButtonText = "Testing...";
         StatusKind = "Running";
         StatusMessage = "Calling /api/recommendations...";
 
@@ -131,6 +139,7 @@ public partial class ShellViewModel : ObservableObject
         finally
         {
             IsBusy = false;
+            TestApiButtonText = "Test API";
         }
     }
 

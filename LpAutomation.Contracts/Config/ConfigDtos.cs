@@ -11,6 +11,14 @@ public sealed record ConfigValidateResponse(bool IsValid, List<ValidationIssue> 
 
 public sealed record ConfigHistoryItem(long Id, DateTimeOffset CreatedUtc, string CreatedBy, string ConfigHash);
 
-public sealed record ActivePoolDto(long ChainId, string Token0, string Token1, int FeeTier);
-public sealed record ConfigImportRequest(string Json);
+public sealed record ActivePoolDto(
+    long ChainId,
+    string Token0,
+    string Token1,
+    int FeeTier,
+    DateTimeOffset? LastSeenUtc = null,
+    string? Source = null,
+    string? Status = null
+);
 
+public sealed record ConfigImportRequest(string Json);

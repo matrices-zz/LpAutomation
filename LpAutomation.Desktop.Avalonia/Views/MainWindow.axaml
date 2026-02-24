@@ -17,6 +17,7 @@
 
 		
 	</Window.Resources>
+	
 	<!-- Phase 2.0 page mapping -->
 	<Window.DataTemplates>
 		<DataTemplate DataType="vm:RecommendationsPageViewModel">

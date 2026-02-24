@@ -15,36 +15,19 @@ builder.Services.AddSingleton<IPoolAddressResolver, UniswapV3PoolAddressResolver
 builder.Services.AddMemoryCache();
 builder.Services.Configure<RpcProviderOptions>(builder.Configuration);
 
-
-
-// OpenAPI spec generation
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// SQLite (Dapper))
 var baseDir = builder.Environment.IsDevelopment()
     ? builder.Environment.ContentRootPath
     : AppContext.BaseDirectory;
 
 var dbPath = Path.Combine(baseDir, "lpautomation.db");
 await SqliteDbInitializer.InitializeAsync(dbPath);
-Console.WriteLine($"SQLite path: {dbPath}");
-Console.WriteLine($"[SqliteDbInitializer] Using dbPath: {dbPath}");
-Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
-Console.WriteLine($"ContentRootPath: {builder.Environment.ContentRootPath}");
-Console.WriteLine($"BaseDirectory: {AppContext.BaseDirectory}");
-Console.WriteLine($"SQLite path (dbPath): {dbPath}");
-Console.WriteLine($"SQLite exists before init: {File.Exists(dbPath)}");
 
-await SqliteDbInitializer.InitializeAsync(dbPath);
-
-Console.WriteLine($"SQLite exists after init: {File.Exists(dbPath)}");
-if (File.Exists(dbPath))
-{
-    Console.WriteLine($"SQLite last write (UTC): {File.GetLastWriteTimeUtc(dbPath):O}");
-}
 builder.Services.AddSingleton(new SnapshotRepository(dbPath));
-builder.Services.AddSingleton<IConfigStore>(new LpAutomation.Server.Persistence.SqliteConfigStore(dbPath));
+builder.Services.AddSingleton(new ActivePoolRepository(dbPath));
+builder.Services.AddSingleton<IConfigStore>(new SqliteConfigStore(dbPath));
 
 builder.Services.AddSingleton<IRecommendationStore, InMemoryRecommendationStore>();
 builder.Services.AddSingleton<IMarketDataProvider, StubMarketDataProvider>();
@@ -57,10 +40,7 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-// OpenAPI JSON at /swagger/v1/swagger.json
 app.UseSwagger();
-
-// ReDoc at /redoc
 app.UseReDoc(c =>
 {
     c.RoutePrefix = "redoc";

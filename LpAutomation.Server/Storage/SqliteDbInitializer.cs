@@ -7,8 +7,6 @@ public static class SqliteDbInitializer
 {
     public static string GetDefaultDbPath()
     {
-        // Server runs with working directory near the executable (typical in dev + service scenarios).
-        // DB will live in: ./data/lpautomation.sqlite
         var dataDir = Path.Combine(AppContext.BaseDirectory, "data");
         Directory.CreateDirectory(dataDir);
         return Path.Combine(dataDir, "lpautomation.sqlite");
@@ -31,13 +29,10 @@ public static class SqliteDbInitializer
         await using var conn = new SqliteConnection(cs);
         await conn.OpenAsync(ct);
 
-        // Helpful pragmas for durability + performance for time-series writes.
-        // WAL is great for concurrent readers (desktop querying while server writes).
         await ExecuteAsync(conn, "PRAGMA journal_mode=WAL;", ct);
         await ExecuteAsync(conn, "PRAGMA synchronous=NORMAL;", ct);
         await ExecuteAsync(conn, "PRAGMA temp_store=MEMORY;", ct);
 
-        // ===== Raw snapshots (append-only) =====
         var createSnapshots = @"
 CREATE TABLE IF NOT EXISTS pool_snapshots (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,15 +57,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_pool_snapshots_pool_block_nonzero
     WHERE block_number > 0;
 ";
         await ExecuteAsync(conn, createSnapshots, ct);
-        await ExecuteAsync(conn, createSnapshots, ct);
         await EnsureColumnExistsAsync(conn, "pool_snapshots", "source", "TEXT NULL", ct);
         await EnsureColumnExistsAsync(conn, "pool_snapshots", "latency_ms", "INTEGER NULL", ct);
         await EnsureColumnExistsAsync(conn, "pool_snapshots", "finality_status", "TEXT NULL", ct);
         await EnsureColumnExistsAsync(conn, "pool_snapshots", "quality_flags", "TEXT NULL", ct);
 
-
-        // ===== Bars / rollups =====
-        // NOTE: SQLite supports '--' and /* */ comments, NOT '//' comments.
         var createBars = @"
 CREATE TABLE IF NOT EXISTS pool_bars_1m (
   chain_id       INTEGER NOT NULL,
@@ -90,7 +81,7 @@ ON pool_bars_1m(chain_id, pool_address, ts_utc);
 CREATE TABLE IF NOT EXISTS pool_bars_5m (
   chain_id       INTEGER NOT NULL,
   pool_address   TEXT    NOT NULL,
-  ts_utc         TEXT    NOT NULL,  -- 5m bucket timestamp ISO8601
+  ts_utc         TEXT    NOT NULL,
   open           REAL    NOT NULL,
   high           REAL    NOT NULL,
   low            REAL    NOT NULL,
@@ -104,7 +95,6 @@ ON pool_bars_5m(chain_id, pool_address, ts_utc);
 ";
         await ExecuteAsync(conn, createBars, ct);
 
-        // ===== Simple KV config table (optional) =====
         var createConfig = @"
 CREATE TABLE IF NOT EXISTS config_kv (
     key         TEXT PRIMARY KEY,
@@ -114,12 +104,11 @@ CREATE TABLE IF NOT EXISTS config_kv (
 ";
         await ExecuteAsync(conn, createConfig, ct);
 
-        // ===== Strategy config versioning tables =====
         var createConfigTables = @"
 CREATE TABLE IF NOT EXISTS strategy_config_versions (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    config_id     TEXT    NOT NULL,      -- GUID as text
-    created_utc   TEXT    NOT NULL,      -- ISO8601 UTC
+    config_id     TEXT    NOT NULL,
+    created_utc   TEXT    NOT NULL,
     created_by    TEXT    NOT NULL,
     config_json   TEXT    NOT NULL,
     config_hash   TEXT    NOT NULL
@@ -138,6 +127,25 @@ INSERT OR IGNORE INTO strategy_config_current (singleton_id, version_id, updated
 VALUES (1, 0, '1970-01-01T00:00:00.0000000Z');
 ";
         await ExecuteAsync(conn, createConfigTables, ct);
+
+        // NEW: durable active pools
+        var createActivePools = @"
+CREATE TABLE IF NOT EXISTS active_pools (
+  chain_id       INTEGER NOT NULL,
+  token0         TEXT    NOT NULL,
+  token1         TEXT    NOT NULL,
+  fee_tier       INTEGER NOT NULL,
+  source         TEXT    NOT NULL,
+  status         TEXT    NOT NULL,
+  first_seen_utc TEXT    NOT NULL,
+  last_seen_utc  TEXT    NOT NULL,
+  notes          TEXT    NULL,
+  PRIMARY KEY (chain_id, token0, token1, fee_tier)
+);
+
+CREATE INDEX IF NOT EXISTS ix_active_pools_last_seen
+ON active_pools(last_seen_utc DESC);";
+        await ExecuteAsync(conn, createActivePools, ct);
     }
 
     private static async Task EnsureColumnExistsAsync(SqliteConnection conn, string table, string column, string definition, CancellationToken ct)

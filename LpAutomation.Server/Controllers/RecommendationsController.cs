@@ -1,6 +1,7 @@
 ﻿using LpAutomation.Core.Strategy;
 using LpAutomation.Server.Services.Pools;
 using LpAutomation.Server.Services.Tokens;
+using LpAutomation.Server.Storage;
 using LpAutomation.Server.Strategy;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,12 +14,18 @@ public sealed class RecommendationsController : ControllerBase
     private readonly IRecommendationStore _store;
     private readonly ITokenRegistry _tokens;
     private readonly IPoolAddressResolver _pools;
+    private readonly ActivePoolRepository _activePools;
 
-    public RecommendationsController(IRecommendationStore store, ITokenRegistry tokens, IPoolAddressResolver pools)
+    public RecommendationsController(
+        IRecommendationStore store,
+        ITokenRegistry tokens,
+        IPoolAddressResolver pools,
+        ActivePoolRepository activePools)
     {
         _store = store;
         _tokens = tokens;
         _pools = pools;
+        _activePools = activePools;
     }
 
     [HttpGet]
@@ -26,7 +33,20 @@ public sealed class RecommendationsController : ControllerBase
     {
         var list = _store.GetLatest(Math.Clamp(take, 1, 200));
 
-        // IMPORTANT: keep the original fields to avoid breaking Desktop.
+        // Touch durable active pools from recommendation stream
+        foreach (var r in list)
+        {
+            await _activePools.UpsertSeenAsync(
+                chainId: (int)r.ChainId,
+                token0: r.Token0,
+                token1: r.Token1,
+                feeTier: r.FeeTier,
+                source: "strategy",
+                status: "active",
+                seenUtc: r.CreatedUtc,
+                ct: ct);
+        }
+
         var outList = new List<object>(list.Count);
 
         foreach (var r in list)
@@ -35,7 +55,6 @@ public sealed class RecommendationsController : ControllerBase
             var dex = "UniswapV3";
             var protocolVersion = "v3";
 
-            // Normalize symbols for pool identity (ETH -> WETH)
             var sym0 = _tokens.NormalizeForV3(chainId, r.Token0);
             var sym1 = _tokens.NormalizeForV3(chainId, r.Token1);
 
@@ -43,7 +62,6 @@ public sealed class RecommendationsController : ControllerBase
             string? token1Addr = null;
             string? poolAddr = null;
 
-            // Keep original detailsJson but append diagnostics if needed
             var detailsJson = r.DetailsJson;
 
             try
@@ -51,27 +69,17 @@ public sealed class RecommendationsController : ControllerBase
                 token0Addr = _tokens.ResolveAddressOrThrow(chainId, sym0);
                 token1Addr = _tokens.ResolveAddressOrThrow(chainId, sym1);
 
-                // Use address ordering inside resolver; it caches results
                 poolAddr = await _pools.ResolveV3PoolAddressAsync(chainId, dex, token0Addr, token1Addr, r.FeeTier, ct);
             }
             catch (Exception ex)
             {
                 var diag = $"PoolResolveError: {ex.GetType().Name}: {ex.Message}";
-
-                // If detailsJson already exists, append in a safe human-readable way
-                detailsJson = string.IsNullOrWhiteSpace(detailsJson)
-                    ? diag
-                    : $"{detailsJson}\n{diag}";
-
-                // IMPORTANT: do not throw — return what we have so Desktop doesn't 500
-                token0Addr = token0Addr ?? null;
-                token1Addr = token1Addr ?? null;
+                detailsJson = string.IsNullOrWhiteSpace(detailsJson) ? diag : $"{detailsJson}\n{diag}";
                 poolAddr = null;
             }
 
             outList.Add(new
             {
-                // Original fields expected by Desktop
                 id = r.Id,
                 createdUtc = r.CreatedUtc,
                 chainId = r.ChainId,
@@ -83,8 +91,6 @@ public sealed class RecommendationsController : ControllerBase
                 reallocateScore = r.ReallocateScore,
                 summary = r.Summary,
                 detailsJson = detailsJson,
-
-                // Identity fields (nice-to-have)
                 dex,
                 protocolVersion,
                 token0Address = token0Addr,

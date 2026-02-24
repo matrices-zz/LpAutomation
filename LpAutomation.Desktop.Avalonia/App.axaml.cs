@@ -27,14 +27,17 @@ public partial class App : Application
             BaseAddress = new Uri("https://localhost:7069/")
         };
 
+        // Core services
         services.AddSingleton(http);
         services.AddSingleton(new ConfigApiClient(http));
         services.AddSingleton(new RecommendationsApiClient(http));
         services.AddSingleton<IFileDialogService>(new AvaloniaFileDialogService());
-             
-        services.AddTransient<RecommendationsPageViewModel>(() =>
-    new RecommendationsPageViewModel(services.Get<RecommendationsApiClient>()));
 
+        // Page VMs
+        services.AddTransient<RecommendationsPageViewModel>(() =>
+            new RecommendationsPageViewModel(services.Get<RecommendationsApiClient>()));
+
+        // Shell VM (Phase 2.1 constructor signature)
         services.AddTransient<ShellViewModel>(() =>
             new ShellViewModel(
                 services.Get<ConfigApiClient>(),
@@ -54,5 +57,4 @@ public partial class App : Application
 
         base.OnFrameworkInitializationCompleted();
     }
-
 }
