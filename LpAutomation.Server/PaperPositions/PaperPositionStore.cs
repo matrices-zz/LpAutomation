@@ -10,6 +10,7 @@ public interface IPaperPositionStore
     Task<PaperPositionDto> UpsertAsync(Guid? id, UpsertPaperPositionRequest req, CancellationToken ct = default);
     Task<bool> DeleteAsync(Guid id, CancellationToken ct = default);
 
+    // helper for recommendation enrichment
     Task<PaperPositionDto?> FindBestMatchAsync(
         string? ownerTag,
         int chainId,
@@ -39,10 +40,7 @@ public sealed class InMemoryPaperPositionStore : IPaperPositionStore
     }
 
     public Task<PaperPositionDto?> GetAsync(Guid id, CancellationToken ct = default)
-    {
-        var row = _map.TryGetValue(id, out var found) ? found : null;
-        return Task.FromResult(row);
-    }
+        => Task.FromResult(_map.TryGetValue(id, out var row) ? row : null);
 
     public Task<PaperPositionDto> UpsertAsync(Guid? id, UpsertPaperPositionRequest req, CancellationToken ct = default)
     {

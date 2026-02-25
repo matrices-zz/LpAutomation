@@ -4,7 +4,7 @@ namespace LpAutomation.Desktop.Avalonia.Services;
 
 public sealed class RecommendationDto
 {
-    public string Id { get; set; }
+    public string Id { get; set; } = "";
     public DateTimeOffset CreatedUtc { get; set; }
     public int ChainId { get; set; }
     public string Token0 { get; set; } = "";

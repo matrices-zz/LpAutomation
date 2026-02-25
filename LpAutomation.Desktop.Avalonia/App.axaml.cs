@@ -31,16 +31,15 @@ public partial class App : Application
         services.AddSingleton(http);
         services.AddSingleton(new ConfigApiClient(http));
         services.AddSingleton(new RecommendationsApiClient(http));
-        services.AddSingleton<IFileDialogService>(new AvaloniaFileDialogService());
         services.AddSingleton(new PaperPositionsApiClient(http));
-        services.AddTransient<PaperPositionsPageViewModel>(() =>
-    new PaperPositionsPageViewModel(services.Get<PaperPositionsApiClient>()));
-
-
+        services.AddSingleton<IFileDialogService>(new AvaloniaFileDialogService());
 
         // Page VMs
         services.AddTransient<RecommendationsPageViewModel>(() =>
             new RecommendationsPageViewModel(services.Get<RecommendationsApiClient>()));
+
+        services.AddTransient<PaperPositionsPageViewModel>(() =>
+            new PaperPositionsPageViewModel(services.Get<PaperPositionsApiClient>()));
 
         // Shell VM (Phase 2.1 constructor signature)
         services.AddTransient<ShellViewModel>(() =>
@@ -48,7 +47,8 @@ public partial class App : Application
                 services.Get<ConfigApiClient>(),
                 services.Get<RecommendationsApiClient>(),
                 services.Get<IFileDialogService>(),
-                services.Get<RecommendationsPageViewModel>()));
+                services.Get<RecommendationsPageViewModel>(),
+                services.Get<PaperPositionsPageViewModel>()));
 
         Services = services;
 

@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 1,
+  "packName": "lp-strategy-presets-v1",
+  "description": "Preset pack for importing baseline LP strategy configs.",
+  "presets": [
+    {
+      "presetId": "defensive",
+      "displayName": "Defensive",
+      "intent": "Capital preservation first with stricter guardrails and higher confidence thresholds.",
+      "document": {
+        "schemaVersion": 1,
+        "configId": "9f5f575d-d997-4f10-aaf6-f0a27c8b1f11",
+        "name": "Defensive Preset",
+        "createdUtc": "2026-01-01T00:00:00Z",
+        "updatedUtc": "2026-01-01T00:00:00Z",
+        "global": {
+          "regime": {
+            "trend": {
+              "r2Min": 0.62,
+              "emaSlopeAbsMin": 0.005,
+              "windowHours": 8
+            },
+            "sideways": {
+              "volNormMax": 0.9,
+              "r2Max": 0.4,
+              "bandContainPctMin": 0.75,
+              "windowHours": 8
+            },
+            "volatile": {
+              "volNormMin": 1.2,
+              "r2Max": 0.45
+            },
+            "priorityOrder": ["VOLATILE", "SIDEWAYS", "TRENDING"]
+          },
+          "scoring": {
+            "reinvest": {
+              "feeApr": {
+                "min": 0.12,
+                "max": 0.55
+              },
+              "inRangePct": {
+                "min": 0.55,
+                "max": 0.92
+              },
+              "volNorm": {
+                "min": 0.7,
+                "max": 1.45
+              },
+              "driftTicksPerHour": {
+                "minMultiplierOfTickSpacing": 4,
+                "maxMultiplierOfTickSpacing": 28
+              },
+              "weights": {
+                "rewardFee": 0.45,
+                "rewardInRange": 0.55,
+                "riskVol": 0.5,
+                "riskDrift": 0.35,
+                "riskTrendPenalty": 0.15
+              },
+              "trendPenalty": {
+                "sideways": 0,
+                "trending": 70,
+                "volatile": 90
+              },
+              "scoreCentering": 58
+            }
+          },
+          "decisions": {
+            "compoundScoreMin": 80,
+            "reallocateScoreMax": 35,
+            "minHoursBetweenCompounds": 10,
+            "staleAfterSeconds": 3600
+          },
+          "guardrails": {
+            "maxSlippageBps": 30,
+            "maxNotionalUsdPerProposal": 1500,
+            "maxGasFeeGwei": 35,
+            "deadlineSecondsAtExecution": 480,
+            "allowApprovals": true,
+            "maxApprovalUsd": 2500
+          },
+          "hedging": {
+            "enabled": true,
+            "exposurePctTrigger": 0.25,
+            "trendDown": {
+              "r2Min": 0.58,
+              "emaSlopeMax": -0.0035
+            },
+            "volSpike": {
+              "vol1hOverVol24hMin": 1.55
+            },
+            "suggestedHedgePct": {
+              "trendDown": {
+                "min": 0.35,
+                "max": 0.6
+              },
+              "volSpike": {
+                "min": 0.2,
+                "max": 0.35
+              }
+            }
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "presetId": "balanced",
+      "displayName": "Balanced",
+      "intent": "Baseline preset balancing fee capture and risk controls.",
+      "document": {
+        "schemaVersion": 1,
+        "configId": "3f9a3ca0-c40f-4477-b130-d85186ef2d9a",
+        "name": "Balanced Preset",
+        "createdUtc": "2026-01-01T00:00:00Z",
+        "updatedUtc": "2026-01-01T00:00:00Z",
+        "global": {
+          "regime": {
+            "trend": {
+              "r2Min": 0.55,
+              "emaSlopeAbsMin": 0.004,
+              "windowHours": 6
+            },
+            "sideways": {
+              "volNormMax": 1,
+              "r2Max": 0.45,
+              "bandContainPctMin": 0.7,
+              "windowHours": 6
+            },
+            "volatile": {
+              "volNormMin": 1.3,
+              "r2Max": 0.5
+            },
+            "priorityOrder": ["TRENDING", "VOLATILE", "SIDEWAYS"]
+          },
+          "scoring": {
+            "reinvest": {
+              "feeApr": {
+                "min": 0.1,
+                "max": 0.8
+              },
+              "inRangePct": {
+                "min": 0.4,
+                "max": 0.9
+              },
+              "volNorm": {
+                "min": 0.8,
+                "max": 1.8
+              },
+              "driftTicksPerHour": {
+                "minMultiplierOfTickSpacing": 5,
+                "maxMultiplierOfTickSpacing": 40
+              },
+              "weights": {
+                "rewardFee": 0.6,
+                "rewardInRange": 0.4,
+                "riskVol": 0.45,
+                "riskDrift": 0.35,
+                "riskTrendPenalty": 0.2
+              },
+              "trendPenalty": {
+                "sideways": 0,
+                "trending": 60,
+                "volatile": 80
+              },
+              "scoreCentering": 50
+            }
+          },
+          "decisions": {
+            "compoundScoreMin": 70,
+            "reallocateScoreMax": 40,
+            "minHoursBetweenCompounds": 6,
+            "staleAfterSeconds": 3600
+          },
+          "guardrails": {
+            "maxSlippageBps": 50,
+            "maxNotionalUsdPerProposal": 2500,
+            "maxGasFeeGwei": 40,
+            "deadlineSecondsAtExecution": 600,
+            "allowApprovals": true,
+            "maxApprovalUsd": 5000
+          },
+          "hedging": {
+            "enabled": true,
+            "exposurePctTrigger": 0.35,
+            "trendDown": {
+              "r2Min": 0.6,
+              "emaSlopeMax": -0.004
+            },
+            "volSpike": {
+              "vol1hOverVol24hMin": 1.8
+            },
+            "suggestedHedgePct": {
+              "trendDown": {
+                "min": 0.25,
+                "max": 0.5
+              },
+              "volSpike": {
+                "min": 0.1,
+                "max": 0.25
+              }
+            }
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "presetId": "aggressive",
+      "displayName": "Aggressive",
+      "intent": "Prioritizes utilization and fee capture with looser constraints and faster action cadence.",
+      "document": {
+        "schemaVersion": 1,
+        "configId": "4f0607b0-4d68-4ec6-a0bc-aef06ea53d03",
+        "name": "Aggressive Preset",
+        "createdUtc": "2026-01-01T00:00:00Z",
+        "updatedUtc": "2026-01-01T00:00:00Z",
+        "global": {
+          "regime": {
+            "trend": {
+              "r2Min": 0.5,
+              "emaSlopeAbsMin": 0.003,
+              "windowHours": 4
+            },
+            "sideways": {
+              "volNormMax": 1.1,
+              "r2Max": 0.5,
+              "bandContainPctMin": 0.65,
+              "windowHours": 4
+            },
+            "volatile": {
+              "volNormMin": 1.45,
+              "r2Max": 0.55
+            },
+            "priorityOrder": ["TRENDING", "SIDEWAYS", "VOLATILE"]
+          },
+          "scoring": {
+            "reinvest": {
+              "feeApr": {
+                "min": 0.08,
+                "max": 1.1
+              },
+              "inRangePct": {
+                "min": 0.3,
+                "max": 0.85
+              },
+              "volNorm": {
+                "min": 0.9,
+                "max": 2.2
+              },
+              "driftTicksPerHour": {
+                "minMultiplierOfTickSpacing": 6,
+                "maxMultiplierOfTickSpacing": 55
+              },
+              "weights": {
+                "rewardFee": 0.7,
+                "rewardInRange": 0.3,
+                "riskVol": 0.35,
+                "riskDrift": 0.35,
+                "riskTrendPenalty": 0.3
+              },
+              "trendPenalty": {
+                "sideways": 0,
+                "trending": 45,
+                "volatile": 65
+              },
+              "scoreCentering": 42
+            }
+          },
+          "decisions": {
+            "compoundScoreMin": 62,
+            "reallocateScoreMax": 48,
+            "minHoursBetweenCompounds": 2,
+            "staleAfterSeconds": 2400
+          },
+          "guardrails": {
+            "maxSlippageBps": 80,
+            "maxNotionalUsdPerProposal": 6000,
+            "maxGasFeeGwei": 75,
+            "deadlineSecondsAtExecution": 900,
+            "allowApprovals": true,
+            "maxApprovalUsd": 12000
+          },
+          "hedging": {
+            "enabled": true,
+            "exposurePctTrigger": 0.5,
+            "trendDown": {
+              "r2Min": 0.68,
+              "emaSlopeMax": -0.0055
+            },
+            "volSpike": {
+              "vol1hOverVol24hMin": 2.1
+            },
+            "suggestedHedgePct": {
+              "trendDown": {
+                "min": 0.15,
+                "max": 0.4
+              },
+              "volSpike": {
+                "min": 0.05,
+                "max": 0.2
+              }
+            }
+          }
+        },
+        "overrides": []
+      }
+    }
+  ]
+}

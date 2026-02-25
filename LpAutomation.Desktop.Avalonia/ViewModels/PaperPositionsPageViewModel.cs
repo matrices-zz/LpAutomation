@@ -1,13 +1,12 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LpAutomation.Contracts.PaperPositions;
 using LpAutomation.Desktop.Avalonia.Services;
-using System;
-using System.Collections.ObjectModel;
-using System.Globalization;
-using System.Net.NetworkInformation;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace LpAutomation.Desktop.Avalonia.ViewModels;
 

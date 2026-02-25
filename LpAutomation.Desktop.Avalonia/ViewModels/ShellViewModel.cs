@@ -12,9 +12,9 @@ public partial class ShellViewModel : ObservableObject
     private readonly ConfigApiClient _configApi;
     private readonly RecommendationsApiClient _recsApi;
     private readonly IFileDialogService _files;
-    private readonly PaperPositionsPageViewModel _paperPositionsPage;
 
     private readonly RecommendationsPageViewModel _recommendationsPage;
+    private readonly PaperPositionsPageViewModel _paperPositionsPage;
 
     [ObservableProperty]
     private string _title = "LP Automation — Avalonia";
@@ -69,19 +69,21 @@ public partial class ShellViewModel : ObservableObject
         ConfigApiClient configApi,
         RecommendationsApiClient recsApi,
         IFileDialogService files,
-        RecommendationsPageViewModel recommendationsPage)
+        RecommendationsPageViewModel recommendationsPage,
+        PaperPositionsPageViewModel paperPositionsPage)
     {
         _configApi = configApi;
         _recsApi = recsApi;
         _files = files;
         _recommendationsPage = recommendationsPage;
+        _paperPositionsPage = paperPositionsPage;
 
         // Keep placeholders for tabs not yet ported
         NavItems.Add(new NavItem("Dashboard", "dashboard", () => null));
         NavItems.Add(new NavItem("Recommendations", "star", () => _recommendationsPage));
+        NavItems.Add(new NavItem("Paper Positions", "briefcase", () => _paperPositionsPage));
         NavItems.Add(new NavItem("Config", "file", () => null));
         NavItems.Add(new NavItem("Settings", "settings", () => null));
-        NavItems.Add(new NavItem("Paper Positions", "briefcase", () => _paperPositionsPage));
 
         // Default page
         var first = NavItems[1]; // Recommendations
