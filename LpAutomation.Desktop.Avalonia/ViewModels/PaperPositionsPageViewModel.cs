@@ -61,14 +61,14 @@ public partial class PaperPositionsPageViewModel : ObservableObject
     {
         try
         {
-            Status = "Loading paper positions...";
+            Status = "Loading simulation positions...";
             var rows = await _api.ListAsync(OwnerTagFilter, 200, ct);
 
             Rows.Clear();
             foreach (var row in rows)
                 Rows.Add(row);
 
-            Status = $"Loaded {Rows.Count} paper position(s).";
+            Status = $"Loaded {Rows.Count} simulation position(s).";
         }
         catch (Exception ex)
         {
@@ -87,10 +87,10 @@ public partial class PaperPositionsPageViewModel : ObservableObject
                 return;
             }
 
-            Status = "Creating paper position...";
+            Status = "Creating simulation position...";
             _ = await _api.CreateAsync(request!, ct);
             await RefreshAsync(ct);
-            Status = "Paper position created.";
+            Status = "Simulation position created.";
         }
         catch (Exception ex)
         {
@@ -106,7 +106,7 @@ public partial class PaperPositionsPageViewModel : ObservableObject
             Status = $"Deleting {id}...";
             var deleted = await _api.DeleteAsync(id, ct);
             await RefreshAsync(ct);
-            Status = deleted ? "Paper position deleted." : "Paper position not found.";
+            Status = deleted ? "Simulation position deleted." : "Simulation position not found.";
         }
         catch (Exception ex)
         {

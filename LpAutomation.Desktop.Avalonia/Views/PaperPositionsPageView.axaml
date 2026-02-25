@@ -15,7 +15,7 @@
 
     <Border Background="#20242C" BorderBrush="#323848" BorderThickness="1" CornerRadius="8" Padding="10">
       <StackPanel Spacing="8">
-        <TextBlock Text="Create Paper Position" FontWeight="SemiBold"/>
+        <TextBlock Text="Create Simulation Position" FontWeight="SemiBold"/>
 
         <Grid ColumnDefinitions="Auto,170,Auto,170,Auto,170" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
           <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="OwnerTag"/>
@@ -50,7 +50,7 @@
           <TextBox   Grid.Row="4" Grid.Column="5" Text="{Binding Notes}"/>
         </Grid>
 
-        <Button Content="Create Position"
+        <Button Content="Save Simulation"
                 Command="{Binding CreateCommand}"
                 HorizontalAlignment="Left"
                 Padding="12,6"/>

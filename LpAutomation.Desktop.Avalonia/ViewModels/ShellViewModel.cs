@@ -23,7 +23,7 @@ public partial class ShellViewModel : ObservableObject
     private string _subtitle = "Desktop MVP (Phase 2.1)";
 
     [ObservableProperty]
-    private string _currentPageTitle = "Recommendations";
+    private string _currentPageTitle = "Discover";
 
     [ObservableProperty]
     private object? _currentPage;
@@ -78,15 +78,15 @@ public partial class ShellViewModel : ObservableObject
         _recommendationsPage = recommendationsPage;
         _paperPositionsPage = paperPositionsPage;
 
-        // Keep placeholders for tabs not yet ported
-        NavItems.Add(new NavItem("Dashboard", "dashboard", () => null));
-        NavItems.Add(new NavItem("Recommendations", "star", () => _recommendationsPage));
-        NavItems.Add(new NavItem("Paper Positions", "briefcase", () => _paperPositionsPage));
+        // Phase 1 navigation alignment (Track / Discover / Simulate)
+        NavItems.Add(new NavItem("Track", "dashboard", () => null));
+        NavItems.Add(new NavItem("Discover", "star", () => _recommendationsPage));
+        NavItems.Add(new NavItem("Simulate", "briefcase", () => _paperPositionsPage));
         NavItems.Add(new NavItem("Config", "file", () => null));
         NavItems.Add(new NavItem("Settings", "settings", () => null));
 
         // Default page
-        var first = NavItems[1]; // Recommendations
+        var first = NavItems[1]; // Discover
         CurrentPage = first.Create();
         CurrentPageTitle = first.Title;
         Title = $"LP Automation — {first.Title}";

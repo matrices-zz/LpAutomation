@@ -11,7 +11,7 @@
               Command="{Binding RefreshCommand}" />
 
       <TextBox Grid.Column="1"
-               Watermark="Search pool/summary..."
+               Watermark="Search opportunities..."
                Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
 
       <ComboBox Grid.Column="2"

@@ -12,11 +12,11 @@ The contract is intentionally shaped around the current app structure and APIs a
 ## Existing foundation (already available)
 
 ### Current desktop navigation and pages
-The shell currently has placeholders for Dashboard/Config/Settings and implemented Recommendations + Paper Positions pages.
+The shell currently has placeholders for Track/Config/Settings and implemented Discover (via Recommendations page) + Simulate (via Paper Positions page) views.
 
-- `Recommendations` page exists and is wired in shell navigation.
-- `Paper Positions` page exists and is wired in shell navigation.
-- `Dashboard`, `Config`, and `Settings` are placeholders today.
+- `Discover` currently reuses the Recommendations page/view model and is wired in shell navigation.
+- `Simulate` currently reuses the Paper Positions page/view model and is wired in shell navigation.
+- `Track`, `Config`, and `Settings` remain placeholders in this phase.
 
 Reference: `ShellViewModel` nav model and injected page view models.
 
