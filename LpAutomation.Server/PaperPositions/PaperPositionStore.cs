@@ -5,41 +5,46 @@ namespace LpAutomation.Server.PaperPositions;
 
 public interface IPaperPositionStore
 {
-    IReadOnlyList<PaperPositionDto> List(string? ownerTag = null, int take = 200);
-    PaperPositionDto? Get(Guid id);
-    PaperPositionDto Upsert(Guid? id, UpsertPaperPositionRequest req);
-    bool Delete(Guid id);
+    Task<IReadOnlyList<PaperPositionDto>> ListAsync(string? ownerTag = null, int take = 200, CancellationToken ct = default);
+    Task<PaperPositionDto?> GetAsync(Guid id, CancellationToken ct = default);
+    Task<PaperPositionDto> UpsertAsync(Guid? id, UpsertPaperPositionRequest req, CancellationToken ct = default);
+    Task<bool> DeleteAsync(Guid id, CancellationToken ct = default);
 
-    // NEW: helper for recommendation enrichment
-    PaperPositionDto? FindBestMatch(
+    Task<PaperPositionDto?> FindBestMatchAsync(
         string? ownerTag,
         int chainId,
         string token0Symbol,
         string token1Symbol,
-        int feeTier);
+        int feeTier,
+        CancellationToken ct = default);
 }
 
 public sealed class InMemoryPaperPositionStore : IPaperPositionStore
 {
     private readonly ConcurrentDictionary<Guid, PaperPositionDto> _map = new();
 
-    public IReadOnlyList<PaperPositionDto> List(string? ownerTag = null, int take = 200)
+    public Task<IReadOnlyList<PaperPositionDto>> ListAsync(string? ownerTag = null, int take = 200, CancellationToken ct = default)
     {
         var query = _map.Values.AsEnumerable();
 
         if (!string.IsNullOrWhiteSpace(ownerTag))
             query = query.Where(x => string.Equals(x.OwnerTag, ownerTag, StringComparison.OrdinalIgnoreCase));
 
-        return query
+        IReadOnlyList<PaperPositionDto> result = query
             .OrderByDescending(x => x.UpdatedUtc)
             .Take(Math.Clamp(take, 1, 2000))
             .ToList();
+
+        return Task.FromResult(result);
     }
 
-    public PaperPositionDto? Get(Guid id)
-        => _map.TryGetValue(id, out var row) ? row : null;
+    public Task<PaperPositionDto?> GetAsync(Guid id, CancellationToken ct = default)
+    {
+        var row = _map.TryGetValue(id, out var found) ? found : null;
+        return Task.FromResult(row);
+    }
 
-    public PaperPositionDto Upsert(Guid? id, UpsertPaperPositionRequest req)
+    public Task<PaperPositionDto> UpsertAsync(Guid? id, UpsertPaperPositionRequest req, CancellationToken ct = default)
     {
         var now = DateTimeOffset.UtcNow;
 
@@ -78,18 +83,19 @@ public sealed class InMemoryPaperPositionStore : IPaperPositionStore
         );
 
         _map[positionId] = row;
-        return row;
+        return Task.FromResult(row);
     }
 
-    public bool Delete(Guid id)
-        => _map.TryRemove(id, out _);
+    public Task<bool> DeleteAsync(Guid id, CancellationToken ct = default)
+        => Task.FromResult(_map.TryRemove(id, out _));
 
-    public PaperPositionDto? FindBestMatch(
+    public Task<PaperPositionDto?> FindBestMatchAsync(
         string? ownerTag,
         int chainId,
         string token0Symbol,
         string token1Symbol,
-        int feeTier)
+        int feeTier,
+        CancellationToken ct = default)
     {
         var a = (token0Symbol ?? "").Trim().ToUpperInvariant();
         var b = (token1Symbol ?? "").Trim().ToUpperInvariant();
@@ -106,7 +112,7 @@ public sealed class InMemoryPaperPositionStore : IPaperPositionStore
         if (!string.IsNullOrWhiteSpace(ownerTag))
             q = q.Where(x => string.Equals(x.OwnerTag, ownerTag, StringComparison.OrdinalIgnoreCase));
 
-        // If multiple match, pick most recently updated
-        return q.OrderByDescending(x => x.UpdatedUtc).FirstOrDefault();
+        var best = q.OrderByDescending(x => x.UpdatedUtc).FirstOrDefault();
+        return Task.FromResult(best);
     }
 }
