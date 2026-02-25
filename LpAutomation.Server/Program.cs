@@ -28,9 +28,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Paper positions
-builder.Services.AddSingleton<IPaperPositionStore, InMemoryPaperPositionStore>();
-
 // SQLite
 var baseDir = builder.Environment.IsDevelopment()
     ? builder.Environment.ContentRootPath
@@ -42,6 +39,9 @@ await SqliteDbInitializer.InitializeAsync(dbPath);
 builder.Services.AddSingleton(new SnapshotRepository(dbPath));
 builder.Services.AddSingleton(new ActivePoolRepository(dbPath));
 builder.Services.AddSingleton<IConfigStore>(new SqliteConfigStore(dbPath));
+
+// Paper positions: SQLite-backed
+builder.Services.AddSingleton<IPaperPositionStore>(new SqlitePaperPositionStore(dbPath));
 
 builder.Services.AddSingleton<IRecommendationStore, InMemoryRecommendationStore>();
 builder.Services.AddSingleton<IMarketDataProvider, StubMarketDataProvider>();
@@ -55,7 +55,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseSwagger();
-
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "LpAutomation API v1");

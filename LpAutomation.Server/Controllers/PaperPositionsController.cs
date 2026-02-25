@@ -16,37 +16,43 @@ public sealed class PaperPositionsController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IReadOnlyList<PaperPositionDto>> List(
+    public async Task<ActionResult<IReadOnlyList<PaperPositionDto>>> List(
         [FromQuery] string? ownerTag = null,
-        [FromQuery] int take = 200)
+        [FromQuery] int take = 200,
+        CancellationToken ct = default)
     {
-        return Ok(_store.List(ownerTag, take));
+        return Ok(await _store.ListAsync(ownerTag, take, ct));
     }
 
     [HttpGet("{id:guid}")]
-    public ActionResult<PaperPositionDto> Get(Guid id)
+    public async Task<ActionResult<PaperPositionDto>> Get(Guid id, CancellationToken ct = default)
     {
-        var row = _store.Get(id);
+        var row = await _store.GetAsync(id, ct);
         return row is null ? NotFound() : Ok(row);
     }
 
     [HttpPost]
-    public ActionResult<UpsertPaperPositionResponse> Create([FromBody] UpsertPaperPositionRequest req)
+    public async Task<ActionResult<UpsertPaperPositionResponse>> Create(
+        [FromBody] UpsertPaperPositionRequest req,
+        CancellationToken ct = default)
     {
-        var created = _store.Upsert(null, req);
+        var created = await _store.UpsertAsync(null, req, ct);
         return Ok(new UpsertPaperPositionResponse(created));
     }
 
     [HttpPut("{id:guid}")]
-    public ActionResult<UpsertPaperPositionResponse> Update(Guid id, [FromBody] UpsertPaperPositionRequest req)
+    public async Task<ActionResult<UpsertPaperPositionResponse>> Update(
+        Guid id,
+        [FromBody] UpsertPaperPositionRequest req,
+        CancellationToken ct = default)
     {
-        var updated = _store.Upsert(id, req);
+        var updated = await _store.UpsertAsync(id, req, ct);
         return Ok(new UpsertPaperPositionResponse(updated));
     }
 
     [HttpDelete("{id:guid}")]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
     {
-        return _store.Delete(id) ? NoContent() : NotFound();
+        return await _store.DeleteAsync(id, ct) ? NoContent() : NotFound();
     }
 }

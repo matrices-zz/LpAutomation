@@ -146,6 +146,36 @@ CREATE TABLE IF NOT EXISTS active_pools (
 CREATE INDEX IF NOT EXISTS ix_active_pools_last_seen
 ON active_pools(last_seen_utc DESC);";
         await ExecuteAsync(conn, createActivePools, ct);
+
+        // ===== Paper positions (durable synthetic positions for testing) =====
+        var createPaperPositions = @"
+CREATE TABLE IF NOT EXISTS paper_positions (
+    position_id            TEXT PRIMARY KEY,  -- GUID
+    owner_tag              TEXT    NOT NULL,
+    chain_id               INTEGER NOT NULL,
+    dex                    TEXT    NOT NULL,
+    pool_address           TEXT    NOT NULL,
+    token0_symbol          TEXT    NOT NULL,
+    token1_symbol          TEXT    NOT NULL,
+    fee_tier               INTEGER NOT NULL,
+    liquidity_notional_usd REAL    NOT NULL,
+    entry_price            REAL    NOT NULL,
+    tick_lower             INTEGER NOT NULL,
+    tick_upper             INTEGER NOT NULL,
+    opened_utc             TEXT    NOT NULL,
+    updated_utc            TEXT    NOT NULL,
+    enabled                INTEGER NOT NULL, -- 0/1
+    notes                  TEXT    NULL
+);
+
+CREATE INDEX IF NOT EXISTS ix_paper_positions_owner_updated
+    ON paper_positions (owner_tag, updated_utc DESC);
+
+CREATE INDEX IF NOT EXISTS ix_paper_positions_match
+    ON paper_positions (chain_id, token0_symbol, token1_symbol, fee_tier, enabled, updated_utc DESC);
+";
+        await ExecuteAsync(conn, createPaperPositions, ct);
+
     }
 
     private static async Task EnsureColumnExistsAsync(SqliteConnection conn, string table, string column, string definition, CancellationToken ct)

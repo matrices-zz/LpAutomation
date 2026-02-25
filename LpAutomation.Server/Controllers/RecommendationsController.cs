@@ -35,7 +35,6 @@ public sealed class RecommendationsController : ControllerBase
         CancellationToken ct = default)
     {
         var list = _store.GetLatest(Math.Clamp(take, 1, 200));
-
         var outList = new List<object>(list.Count);
 
         foreach (var r in list)
@@ -57,7 +56,6 @@ public sealed class RecommendationsController : ControllerBase
             {
                 token0Addr = _tokens.ResolveAddressOrThrow(chainId, sym0);
                 token1Addr = _tokens.ResolveAddressOrThrow(chainId, sym1);
-
                 poolAddr = await _pools.ResolveV3PoolAddressAsync(chainId, dex, token0Addr, token1Addr, r.FeeTier, ct);
             }
             catch (Exception ex)
@@ -67,13 +65,13 @@ public sealed class RecommendationsController : ControllerBase
                 poolAddr = null;
             }
 
-            // NEW: attach best-matching paper position (if any)
-            var paperPosition = _paper.FindBestMatch(
+            var paperPosition = await _paper.FindBestMatchAsync(
                 ownerTag: ownerTag,
                 chainId: chainId,
                 token0Symbol: r.Token0,
                 token1Symbol: r.Token1,
-                feeTier: r.FeeTier);
+                feeTier: r.FeeTier,
+                ct: ct);
 
             outList.Add(new
             {
@@ -95,7 +93,6 @@ public sealed class RecommendationsController : ControllerBase
                 token1Address = token1Addr,
                 poolAddress = poolAddr,
 
-                // NEW field
                 paperPosition
             });
         }
