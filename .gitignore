@@ -378,3 +378,4 @@ LpAutomation.Server/*.db-wal
 
 # Local/one-off helper scripts not part of product
 check-swagger.ps1
+/LpAutomation.Server/lpautomation.db
