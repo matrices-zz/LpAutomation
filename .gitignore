@@ -361,3 +361,10 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# Local SQLite runtime artifacts (do not commit)
+LpAutomation.Server/*.db
+LpAutomation.Server/*.db-shm
+LpAutomation.Server/*.db-wal
+
+# Local/one-off helper scripts not part of product
+check-swagger.ps1
