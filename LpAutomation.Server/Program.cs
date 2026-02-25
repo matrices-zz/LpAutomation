@@ -1,11 +1,10 @@
-using Microsoft.OpenApi.Models;
+using LpAutomation.Server.PaperPositions;
 using LpAutomation.Server.Persistence;
 using LpAutomation.Server.Services.Pools;
-using LpAutomation.Server.Strategy;
-using LpAutomation.Server.PaperPositions;
-using LpAutomation.Contracts.PaperPositions;
 using LpAutomation.Server.Services.Tokens;
 using LpAutomation.Server.Storage;
+using LpAutomation.Server.Strategy;
+using Microsoft.OpenApi.Models;
 using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,9 +16,11 @@ builder.Services.AddHttpClient<IOnChainPoolFactoryClient, JsonRpcUniswapV3Factor
 builder.Services.AddSingleton<IPoolAddressResolver, UniswapV3PoolAddressResolver>();
 builder.Services.AddMemoryCache();
 builder.Services.Configure<RpcProviderOptions>(builder.Configuration);
+builder.Services.AddSingleton<IPaperPositionStore, InMemoryPaperPositionStore>();
 
+
+// OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -29,8 +30,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddSingleton<IPaperPositionStore, InMemoryPaperPositionStore>();
-
+// SQLite
 var baseDir = builder.Environment.IsDevelopment()
     ? builder.Environment.ContentRootPath
     : AppContext.BaseDirectory;
@@ -54,6 +54,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseSwagger();
+
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "LpAutomation API v1");
