@@ -12,6 +12,7 @@ public partial class ShellViewModel : ObservableObject
     private readonly ConfigApiClient _configApi;
     private readonly RecommendationsApiClient _recsApi;
     private readonly IFileDialogService _files;
+    private readonly PaperPositionsPageViewModel _paperPositionsPage;
 
     private readonly RecommendationsPageViewModel _recommendationsPage;
 
@@ -80,6 +81,7 @@ public partial class ShellViewModel : ObservableObject
         NavItems.Add(new NavItem("Recommendations", "star", () => _recommendationsPage));
         NavItems.Add(new NavItem("Config", "file", () => null));
         NavItems.Add(new NavItem("Settings", "settings", () => null));
+        NavItems.Add(new NavItem("Paper Positions", "briefcase", () => _paperPositionsPage));
 
         // Default page
         var first = NavItems[1]; // Recommendations

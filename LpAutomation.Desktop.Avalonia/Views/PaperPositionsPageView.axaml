@@ -1,0 +1,102 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="LpAutomation.Desktop.Avalonia.Views.PaperPositionsPageView">
+
+  <StackPanel Spacing="12">
+
+    <Grid ColumnDefinitions="Auto,180,Auto,180,Auto,180,Auto" ColumnSpacing="8">
+      <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Owner filter" />
+      <TextBox Grid.Column="1" Text="{Binding OwnerTagFilter}" />
+
+      <Button Grid.Column="2" Content="Refresh" Command="{Binding RefreshCommand}" Margin="6,0,0,0" />
+
+      <TextBlock Grid.Column="3" Grid.ColumnSpan="4" VerticalAlignment="Center" Text="{Binding Status}" />
+    </Grid>
+
+    <Border Background="#20242C" BorderBrush="#323848" BorderThickness="1" CornerRadius="8" Padding="10">
+      <StackPanel Spacing="8">
+        <TextBlock Text="Create Paper Position" FontWeight="SemiBold"/>
+
+        <Grid ColumnDefinitions="Auto,170,Auto,170,Auto,170" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+          <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="OwnerTag"/>
+          <TextBox   Grid.Row="0" Grid.Column="1" Text="{Binding OwnerTag}"/>
+          <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Text="ChainId"/>
+          <TextBox   Grid.Row="0" Grid.Column="3" Text="{Binding ChainIdText}"/>
+          <TextBlock Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" Text="Dex"/>
+          <TextBox   Grid.Row="0" Grid.Column="5" Text="{Binding Dex}"/>
+
+          <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="PoolAddress"/>
+          <TextBox   Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding PoolAddress}"/>
+
+          <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Token0"/>
+          <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding Token0Symbol}"/>
+          <TextBlock Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" Text="Token1"/>
+          <TextBox   Grid.Row="2" Grid.Column="3" Text="{Binding Token1Symbol}"/>
+          <TextBlock Grid.Row="2" Grid.Column="4" VerticalAlignment="Center" Text="FeeTier"/>
+          <TextBox   Grid.Row="2" Grid.Column="5" Text="{Binding FeeTierText}"/>
+
+          <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Text="Liquidity USD"/>
+          <TextBox   Grid.Row="3" Grid.Column="1" Text="{Binding LiquidityNotionalUsdText}"/>
+          <TextBlock Grid.Row="3" Grid.Column="2" VerticalAlignment="Center" Text="Entry Price"/>
+          <TextBox   Grid.Row="3" Grid.Column="3" Text="{Binding EntryPriceText}"/>
+          <TextBlock Grid.Row="3" Grid.Column="4" VerticalAlignment="Center" Text="Enabled"/>
+          <CheckBox  Grid.Row="3" Grid.Column="5" IsChecked="{Binding Enabled}"/>
+
+          <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Text="Tick Lower"/>
+          <TextBox   Grid.Row="4" Grid.Column="1" Text="{Binding TickLowerText}"/>
+          <TextBlock Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" Text="Tick Upper"/>
+          <TextBox   Grid.Row="4" Grid.Column="3" Text="{Binding TickUpperText}"/>
+          <TextBlock Grid.Row="4" Grid.Column="4" VerticalAlignment="Center" Text="Notes"/>
+          <TextBox   Grid.Row="4" Grid.Column="5" Text="{Binding Notes}"/>
+        </Grid>
+
+        <Button Content="Create Position"
+                Command="{Binding CreateCommand}"
+                HorizontalAlignment="Left"
+                Padding="12,6"/>
+      </StackPanel>
+    </Border>
+
+    <Border Background="#20242C" BorderBrush="#323848" BorderThickness="1" CornerRadius="8" Padding="10">
+      <Grid ColumnDefinitions="220,120,100,200,120,120,120,*" ColumnSpacing="8">
+        <TextBlock Text="Position Id" FontWeight="SemiBold"/>
+        <TextBlock Grid.Column="1" Text="Owner" FontWeight="SemiBold"/>
+        <TextBlock Grid.Column="2" Text="Pair" FontWeight="SemiBold"/>
+        <TextBlock Grid.Column="3" Text="Pool" FontWeight="SemiBold"/>
+        <TextBlock Grid.Column="4" Text="Fee" FontWeight="SemiBold"/>
+        <TextBlock Grid.Column="5" Text="Liquidity" FontWeight="SemiBold"/>
+        <TextBlock Grid.Column="6" Text="Updated" FontWeight="SemiBold"/>
+        <TextBlock Grid.Column="7" Text="Actions" FontWeight="SemiBold"/>
+      </Grid>
+    </Border>
+
+    <ItemsControl ItemsSource="{Binding Rows}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Border Margin="0,4,0,0"
+                  Padding="10"
+                  CornerRadius="8"
+                  Background="{StaticResource KpiCardBrush}"
+                  BorderBrush="{StaticResource KpiBorderBrush}"
+                  BorderThickness="1">
+            <Grid ColumnDefinitions="220,120,100,200,120,120,120,*" ColumnSpacing="8">
+              <TextBlock Text="{Binding PositionId}"/>
+              <TextBlock Grid.Column="1" Text="{Binding OwnerTag}"/>
+              <TextBlock Grid.Column="2" Text="{Binding Token0Symbol}"/>
+              <TextBlock Grid.Column="3" Text="{Binding PoolAddress}"/>
+              <TextBlock Grid.Column="4" Text="{Binding FeeTier}"/>
+              <TextBlock Grid.Column="5" Text="{Binding LiquidityNotionalUsd}"/>
+              <TextBlock Grid.Column="6" Text="{Binding UpdatedUtc}"/>
+              <Button Grid.Column="7"
+                      Content="Delete"
+                      Command="{Binding DataContext.DeleteByIdCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                      CommandParameter="{Binding PositionId}"
+                      HorizontalAlignment="Left"/>
+            </Grid>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+
+  </StackPanel>
+</UserControl>

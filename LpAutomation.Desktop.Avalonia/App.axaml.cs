@@ -32,6 +32,11 @@ public partial class App : Application
         services.AddSingleton(new ConfigApiClient(http));
         services.AddSingleton(new RecommendationsApiClient(http));
         services.AddSingleton<IFileDialogService>(new AvaloniaFileDialogService());
+        services.AddSingleton(new PaperPositionsApiClient(http));
+        services.AddTransient<PaperPositionsPageViewModel>(() =>
+    new PaperPositionsPageViewModel(services.Get<PaperPositionsApiClient>()));
+
+
 
         // Page VMs
         services.AddTransient<RecommendationsPageViewModel>(() =>

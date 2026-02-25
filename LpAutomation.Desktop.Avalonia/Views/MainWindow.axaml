@@ -23,6 +23,9 @@
 		<DataTemplate DataType="vm:RecommendationsPageViewModel">
 			<views:RecommendationsPageView />
 		</DataTemplate>
+		<DataTemplate DataType="vm:PaperPositionsPageViewModel">
+			<views:PaperPositionsPageView />
+		</DataTemplate>
 	</Window.DataTemplates>
 
 	<Window.Styles>
