@@ -1,68 +1,80 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="LpAutomation.Desktop.Avalonia.Views.RecommendationsPageView">
+             x:Class="LpAutomation.Desktop.Avalonia.Views.RecommendationsPageView"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch">
 
-  <StackPanel Spacing="10">
+	<Grid RowDefinitions="Auto,Auto,*" RowSpacing="10"
+		  HorizontalAlignment="Stretch"
+		  VerticalAlignment="Stretch">
 
-    <!-- toolbar -->
-    <Grid ColumnDefinitions="Auto,220,170,170,*,Auto" ColumnSpacing="8">
-      <Button Grid.Column="0"
-              Content="Refresh"
-              Command="{Binding RefreshCommand}" />
+		<Border Grid.Row="0"
+				Background="{StaticResource PanelBackgroundBrush}"
+				BorderBrush="{StaticResource PanelBorderBrush}"
+				BorderThickness="1"
+				CornerRadius="8"
+				Padding="10">
+			<Grid ColumnDefinitions="Auto,220,170,170,*,Auto" ColumnSpacing="8">
+				<Button Grid.Column="0"
+						Content="Refresh"
+						Command="{Binding RefreshCommand}" />
 
-      <TextBox Grid.Column="1"
-               Watermark="Search opportunities..."
-               Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+				<TextBox Grid.Column="1"
+						 Watermark="Search opportunities..."
+						 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
 
-      <ComboBox Grid.Column="2"
-                ItemsSource="{Binding RegimeOptions}"
-                SelectedItem="{Binding SelectedRegime}" />
+				<ComboBox Grid.Column="2"
+						  ItemsSource="{Binding RegimeOptions}"
+						  SelectedItem="{Binding SelectedRegime}" />
 
-      <ComboBox Grid.Column="3"
-                ItemsSource="{Binding SortOptions}"
-                SelectedItem="{Binding SelectedSort}" />
+				<ComboBox Grid.Column="3"
+						  ItemsSource="{Binding SortOptions}"
+						  SelectedItem="{Binding SelectedSort}" />
 
-      <TextBlock Grid.Column="4"
-                 VerticalAlignment="Center"
-                 Text="{Binding Status}" />
+				<TextBlock Grid.Column="4"
+						   VerticalAlignment="Center"
+						   Text="{Binding Status}" />
 
-      <TextBlock Grid.Column="5"
-                 VerticalAlignment="Center"
-                 Text="{Binding CountLabel}" />
-    </Grid>
+				<TextBlock Grid.Column="5"
+						   VerticalAlignment="Center"
+						   Text="{Binding CountLabel}" />
+			</Grid>
+		</Border>
 
-    <!-- header -->
-    <Border Background="#20242C" BorderBrush="#323848" BorderThickness="1" CornerRadius="8" Padding="10">
-      <Grid ColumnDefinitions="220,120,120,120,*" ColumnSpacing="10">
-        <TextBlock Text="Pool" FontWeight="SemiBold"/>
-        <TextBlock Grid.Column="1" Text="Regime" FontWeight="SemiBold"/>
-        <TextBlock Grid.Column="2" Text="Reinvest" FontWeight="SemiBold"/>
-        <TextBlock Grid.Column="3" Text="Reallocate" FontWeight="SemiBold"/>
-        <TextBlock Grid.Column="4" Text="Summary" FontWeight="SemiBold"/>
-      </Grid>
-    </Border>
+		<Border Grid.Row="1" Background="#20242C" BorderBrush="#323848" BorderThickness="1" CornerRadius="8" Padding="10">
+			<Grid ColumnDefinitions="220,120,120,120,*" ColumnSpacing="10">
+				<TextBlock Text="Pool" FontWeight="SemiBold"/>
+				<TextBlock Grid.Column="1" Text="Regime" FontWeight="SemiBold"/>
+				<TextBlock Grid.Column="2" Text="Reinvest" FontWeight="SemiBold"/>
+				<TextBlock Grid.Column="3" Text="Reallocate" FontWeight="SemiBold"/>
+				<TextBlock Grid.Column="4" Text="Summary" FontWeight="SemiBold"/>
+			</Grid>
+		</Border>
 
-    <!-- rows -->
-    <ItemsControl ItemsSource="{Binding FilteredRows}">
-      <ItemsControl.ItemTemplate>
-        <DataTemplate>
-          <Border Margin="0,4,0,0"
-                  Padding="10"
-                  CornerRadius="8"
-                  Background="{StaticResource KpiCardBrush}"
-                  BorderBrush="{StaticResource KpiBorderBrush}"
-                  BorderThickness="1">
-            <Grid ColumnDefinitions="220,120,120,120,*" ColumnSpacing="10">
-              <TextBlock Text="{Binding Pool}" />
-              <TextBlock Grid.Column="1" Text="{Binding RegimeLabel}" />
-              <TextBlock Grid.Column="2" Text="{Binding Reinvest}" />
-              <TextBlock Grid.Column="3" Text="{Binding Reallocate}" />
-              <TextBlock Grid.Column="4" Text="{Binding Summary}" TextWrapping="Wrap" />
-            </Grid>
-          </Border>
-        </DataTemplate>
-      </ItemsControl.ItemTemplate>
-    </ItemsControl>
+		<ScrollViewer Grid.Row="2"
+					  VerticalScrollBarVisibility="Auto"
+					  HorizontalScrollBarVisibility="Auto">
+			<ItemsControl ItemsSource="{Binding FilteredRows}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<Border Margin="0,0,0,4"
+								Padding="10"
+								CornerRadius="8"
+								Background="{StaticResource KpiCardBrush}"
+								BorderBrush="{StaticResource KpiBorderBrush}"
+								BorderThickness="1">
+							<Grid ColumnDefinitions="220,120,120,120,*" ColumnSpacing="10">
+								<TextBlock Text="{Binding Pool}" />
+								<TextBlock Grid.Column="1" Text="{Binding RegimeLabel}" />
+								<TextBlock Grid.Column="2" Text="{Binding Reinvest}" />
+								<TextBlock Grid.Column="3" Text="{Binding Reallocate}" />
+								<TextBlock Grid.Column="4" Text="{Binding Summary}" TextWrapping="Wrap" />
+							</Grid>
+						</Border>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
 
-  </StackPanel>
+	</Grid>
 </UserControl>

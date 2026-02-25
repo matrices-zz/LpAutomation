@@ -13,6 +13,7 @@ public partial class ShellViewModel : ObservableObject
     private readonly RecommendationsApiClient _recsApi;
     private readonly IFileDialogService _files;
 
+    private readonly TrackPageViewModel _trackPage;
     private readonly RecommendationsPageViewModel _recommendationsPage;
     private readonly PaperPositionsPageViewModel _paperPositionsPage;
 
@@ -69,17 +70,19 @@ public partial class ShellViewModel : ObservableObject
         ConfigApiClient configApi,
         RecommendationsApiClient recsApi,
         IFileDialogService files,
+        TrackPageViewModel trackPage,
         RecommendationsPageViewModel recommendationsPage,
         PaperPositionsPageViewModel paperPositionsPage)
     {
         _configApi = configApi;
         _recsApi = recsApi;
         _files = files;
+        _trackPage = trackPage;
         _recommendationsPage = recommendationsPage;
         _paperPositionsPage = paperPositionsPage;
 
         // Phase 1 navigation alignment (Track / Discover / Simulate)
-        NavItems.Add(new NavItem("Track", "dashboard", () => null));
+        NavItems.Add(new NavItem("Track", "dashboard", () => _trackPage));
         NavItems.Add(new NavItem("Discover", "star", () => _recommendationsPage));
         NavItems.Add(new NavItem("Simulate", "briefcase", () => _paperPositionsPage));
         NavItems.Add(new NavItem("Config", "file", () => null));

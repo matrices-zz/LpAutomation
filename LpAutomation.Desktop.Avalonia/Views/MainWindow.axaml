@@ -15,11 +15,14 @@
 		<conv:StatusKindToBrushConverter x:Key="StatusKindToBrushConverter" />
 		<conv:StatusKindToLabelConverter x:Key="StatusKindToLabelConverter" />
 
-		
+
 	</Window.Resources>
-	
+
 	<!-- Phase 2.0 page mapping -->
 	<Window.DataTemplates>
+		<DataTemplate DataType="vm:TrackPageViewModel">
+			<views:TrackPageView />
+		</DataTemplate>
 		<DataTemplate DataType="vm:RecommendationsPageViewModel">
 			<views:RecommendationsPageView />
 		</DataTemplate>

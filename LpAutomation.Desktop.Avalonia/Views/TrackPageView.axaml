@@ -1,0 +1,134 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="LpAutomation.Desktop.Avalonia.Views.TrackPageView"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch">
+
+	<Grid RowDefinitions="Auto,Auto,*"
+		  RowSpacing="10"
+		  HorizontalAlignment="Stretch"
+		  VerticalAlignment="Stretch"
+		  MinHeight="0"
+		  ClipToBounds="True">
+
+		<!-- Toolbar -->
+		<Border Grid.Row="0"
+				Background="{StaticResource PanelBackgroundBrush}"
+				BorderBrush="{StaticResource PanelBorderBrush}"
+				BorderThickness="1"
+				CornerRadius="8"
+				Padding="10">
+			<Grid ColumnDefinitions="Auto,260,Auto,*"
+				  ColumnSpacing="8"
+				  HorizontalAlignment="Stretch">
+				<Button Grid.Column="0"
+						Content="Refresh"
+						Command="{Binding RefreshCommand}" />
+
+				<TextBox Grid.Column="1"
+						 Text="{Binding OwnerTagFilter}"
+						 Watermark="OwnerTag filter..."
+						 HorizontalAlignment="Stretch" />
+
+				<TextBlock Grid.Column="2"
+						   Margin="10,0,0,0"
+						   VerticalAlignment="Center"
+						   Text="{Binding Status}" />
+			</Grid>
+		</Border>
+
+		<!-- KPI cards -->
+		<Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+			<Border Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+				<StackPanel>
+					<TextBlock Text="Active Pools" Foreground="{StaticResource TextMutedBrush}" />
+					<TextBlock Text="{Binding ActivePoolsCount}" FontSize="22" FontWeight="SemiBold" />
+				</StackPanel>
+			</Border>
+
+			<Border Grid.Column="1" Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+				<StackPanel>
+					<TextBlock Text="Simulation Positions" Foreground="{StaticResource TextMutedBrush}" />
+					<TextBlock Text="{Binding PaperPositionsCount}" FontSize="22" FontWeight="SemiBold" />
+				</StackPanel>
+			</Border>
+
+			<Border Grid.Column="2" Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+				<StackPanel>
+					<TextBlock Text="Matched Pools" Foreground="{StaticResource TextMutedBrush}" />
+					<TextBlock Text="{Binding MatchedPoolsCount}" FontSize="22" FontWeight="SemiBold" />
+				</StackPanel>
+			</Border>
+
+			<Border Grid.Column="3" Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+				<StackPanel>
+					<TextBlock Text="Last Updated (UTC)" Foreground="{StaticResource TextMutedBrush}" />
+					<TextBlock Text="{Binding LastUpdatedUtc}" />
+				</StackPanel>
+			</Border>
+		</Grid>
+
+		<!-- Results pane only -->
+		<Border Grid.Row="2"
+				Background="#20242C"
+				BorderBrush="#323848"
+				BorderThickness="1"
+				CornerRadius="8"
+				Padding="10"
+				MinHeight="0"
+				ClipToBounds="True">
+			<ScrollViewer MinHeight="0"
+						  HorizontalAlignment="Stretch"
+						  VerticalAlignment="Stretch"
+						  VerticalScrollBarVisibility="Auto"
+						  HorizontalScrollBarVisibility="Auto">
+
+				<StackPanel Spacing="6">
+					<!-- Header aligned to row template -->
+					<Grid MinWidth="1360"
+						  ColumnDefinitions="180,340,80,120,110,120,120,140,150"
+						  ColumnSpacing="8">
+						<TextBlock Grid.Column="0" Text="Pair" FontWeight="SemiBold" />
+						<TextBlock Grid.Column="1" Text="Pool" FontWeight="SemiBold" />
+						<TextBlock Grid.Column="2" Text="Fee" FontWeight="SemiBold" />
+						<TextBlock Grid.Column="3" Text="Regime" FontWeight="SemiBold" />
+						<TextBlock Grid.Column="4" Text="Reinvest" FontWeight="SemiBold" />
+						<TextBlock Grid.Column="5" Text="Reallocate" FontWeight="SemiBold" />
+						<TextBlock Grid.Column="6" Text="Status" FontWeight="SemiBold" />
+						<TextBlock Grid.Column="7" Text="Owner" FontWeight="SemiBold" />
+						<TextBlock Grid.Column="8" Text="Updated" FontWeight="SemiBold" />
+					</Grid>
+
+					<ItemsControl ItemsSource="{Binding Rows}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<Border Margin="0,0,0,4"
+										Padding="10"
+										CornerRadius="8"
+										MinWidth="1360"
+										Background="{StaticResource KpiCardBrush}"
+										BorderBrush="{StaticResource KpiBorderBrush}"
+										BorderThickness="1">
+									<Grid ColumnDefinitions="180,340,80,120,110,120,120,140,150"
+										  ColumnSpacing="8">
+										<TextBlock Grid.Column="0" Text="{Binding Pair}" TextTrimming="CharacterEllipsis" />
+										<TextBlock Grid.Column="1" Text="{Binding PoolAddress}" FontFamily="Consolas" TextTrimming="CharacterEllipsis" />
+										<TextBlock Grid.Column="2" Text="{Binding FeeTier}" />
+										<TextBlock Grid.Column="3" Text="{Binding Regime}" TextTrimming="CharacterEllipsis" />
+										<TextBlock Grid.Column="4" Text="{Binding Reinvest}" />
+										<TextBlock Grid.Column="5" Text="{Binding Reallocate}" />
+										<TextBlock Grid.Column="6" Text="{Binding Status}" TextTrimming="CharacterEllipsis" />
+										<TextBlock Grid.Column="7" Text="{Binding OwnerTag}" TextTrimming="CharacterEllipsis" />
+										<TextBlock Grid.Column="8" Text="{Binding UpdatedUtc}" />
+									</Grid>
+								</Border>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</StackPanel>
+
+			</ScrollViewer>
+		</Border>
+
+	</Grid>
+</UserControl>

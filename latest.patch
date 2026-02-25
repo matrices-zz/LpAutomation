@@ -1,0 +1,297 @@
+From 6efb3dd9e296aa675aea15f26a46ebf51027855a Mon Sep 17 00:00:00 2001
+From: Eddie Adams <Eddie@dynamicvalidation.net>
+Date: Wed, 25 Feb 2026 11:03:08 -0500
+Subject: [PATCH] docs
+
+---
+ docs/track-discover-simulate-contract.md | 278 +++++++++++++++++++++++
+ 1 file changed, 278 insertions(+)
+ create mode 100644 docs/track-discover-simulate-contract.md
+
+diff --git a/docs/track-discover-simulate-contract.md b/docs/track-discover-simulate-contract.md
+new file mode 100644
+index 0000000..32466d8
+--- /dev/null
++++ b/docs/track-discover-simulate-contract.md
+@@ -0,0 +1,278 @@
++# Track / Discover / Simulate Page Contract (Implementation Draft)
++
++## Purpose
++This document defines concrete, implementation-ready contracts for the next desktop product increment:
++
++- **Track**: monitor live portfolio + pool exposure, risk, and activity.
++- **Discover**: find candidate pools/opportunities and compare them.
++- **Simulate**: run paper what-if scenarios before changing live behavior.
++
++The contract is intentionally shaped around the current app structure and APIs already present in this repository.
++
++## Existing foundation (already available)
++
++### Current desktop navigation and pages
++The shell currently has placeholders for Dashboard/Config/Settings and implemented Recommendations + Paper Positions pages.
++
++- `Recommendations` page exists and is wired in shell navigation.
++- `Paper Positions` page exists and is wired in shell navigation.
++- `Dashboard`, `Config`, and `Settings` are placeholders today.
++
++Reference: `ShellViewModel` nav model and injected page view models.
++
++### Existing backend endpoints used as building blocks
++- `GET /api/recommendations` for recommendation rows.
++- `GET/POST/DELETE /api/paper-positions` for scenario state.
++- `GET /api/config/active-pools` for active pool list and fallback derivation.
++- `POST /api/config/import` for strategy profile import.
++
++These endpoints are enough to bootstrap v1 contracts below without blocking on new server work.
++
++---
++
++## 1) Track page contract
++
++### Product goal
++Give a fast operator view of “what is currently happening”:
++- Are we in range?
++- What is risk/exposure right now?
++- Which pools/positions need attention?
++
++### View model contract
++`TrackPageViewModel`
++
++#### Inputs/state
++- `OwnerTagFilter : string`
++- `ChainFilter : long?`
++- `RefreshIntervalSeconds : int` (0 = manual only)
++- `AutoRefreshEnabled : bool`
++
++#### Outputs/state
++- `Summary : TrackSummaryVm`
++  - `ActivePoolsCount : int`
++  - `PaperPositionsCount : int`
++  - `InRangePct : double`
++  - `EstimatedNetExposureUsd : decimal`
++  - `WarningCount : int`
++  - `LastUpdatedUtc : string`
++- `Rows : ObservableCollection<TrackRowVm>`
++  - `PoolAddress : string`
++  - `Pair : string`
++  - `FeeTier : int`
++  - `Regime : string`
++  - `RecommendationAction : string`
++  - `PaperPositionId : Guid?`
++  - `LiquidityUsd : decimal?`
++  - `EstimatedExposurePct : double?`
++  - `Status : string` (`Healthy|Warn|OutOfRange|Stale`)
++  - `Diagnostics : string`
++- `StatusMessage : string`
++- `IsBusy : bool`
++
++#### Commands
++- `RefreshCommand`
++- `OpenPaperPositionCommand(Guid positionId)`
++- `OpenRecommendationCommand(string poolAddress)`
++- `ToggleAutoRefreshCommand`
++
++### Data binding contract (v1)
++Track page aggregates from existing APIs:
++1. `GET /api/config/active-pools`
++2. `GET /api/recommendations?limit=...&ownerTag=...`
++3. `GET /api/paper-positions?ownerTag=...`
++
++Join key priority:
++1. `paperPosition.poolAddress == recommendation.poolAddress`
++2. fallback by `(token0, token1, feeTier, chainId)` if address unavailable.
++
++### UX contract
++- **Top KPI strip**: active pools, attached paper positions, in-range %, exposure, warnings.
++- **Main table**: one row per active pool/recommendation with status color chip.
++- **Right-side details pane** (or expandable row): diagnostics + quick links to Discover/Simulate actions.
++
++### Acceptance criteria
++- Page renders within 1.5s for 200 recommendation rows (excluding network latency).
++- Manual refresh updates KPI and rows atomically.
++- Null-safe behavior when paper positions are empty.
++
++---
++
++## 2) Discover page contract
++
++### Product goal
++Turn recommendation data into a sortable/filterable “opportunity board” and allow promoting candidates into paper simulations quickly.
++
++### View model contract
++`DiscoverPageViewModel`
++
++#### Inputs/state
++- `SearchText : string`
++- `RegimeFilter : string` (`All|SIDEWAYS|TRENDING|VOLATILE`)
++- `SortBy : string` (`Score|FeeApr|InRangePct|Risk|Liquidity`)
++- `SortDirection : string` (`Asc|Desc`)
++- `OwnerTagContext : string`
++
++#### Outputs/state
++- `Rows : ObservableCollection<DiscoverRowVm>`
++  - `PoolAddress : string`
++  - `Pair : string`
++  - `Regime : string`
++  - `Action : string`
++  - `Score : int`
++  - `FeeApr : double?`
++  - `InRangePct : double?`
++  - `VolNorm : double?`
++  - `DriftTicksPerHour : double?`
++  - `PaperMatch : bool`
++  - `PresetHint : string` (`Defensive|Balanced|Aggressive|Custom`)
++  - `Reasoning : string`
++- `StatusMessage : string`
++- `LastFetchedUtc : string`
++
++#### Commands
++- `RefreshCommand`
++- `CreatePaperPositionFromRowCommand(DiscoverRowVm row)`
++- `ApplyPresetHintCommand(string presetId)`
++- `ExportSelectionCommand`
++
++### Data binding contract (v1)
++- Primary: `GET /api/recommendations`
++- Enrichment: if `paperPosition` present in recommendation payload, set `PaperMatch = true`.
++- Optional profile hinting:
++  - map score/risk thresholds to preset labels (`Defensive/Balanced/Aggressive`) for UI guidance only.
++
++### UX contract
++- **Filter toolbar** on top.
++- **Opportunity grid** center.
++- **Quick actions** per row:
++  - “Simulate” (prefill Simulate page).
++  - “Add Paper Position”.
++  - “Open Pool Details”.
++
++### Acceptance criteria
++- Filtering/sorting is local and instantaneous after payload load.
++- “Create Paper Position” succeeds without leaving Discover page.
++- Preset hint appears for every row (or `Custom` fallback).
++
++---
++
++## 3) Simulate page contract
++
++### Product goal
++Run what-if range behavior for candidate LP setups using current recommendation + position context, then persist scenario snapshots.
++
++### View model contract
++`SimulatePageViewModel`
++
++#### Inputs/state
++- `ScenarioName : string`
++- `OwnerTag : string`
++- `PoolAddress : string`
++- `ChainId : long`
++- `Token0Symbol : string`
++- `Token1Symbol : string`
++- `FeeTier : int`
++- `EntryPrice : decimal`
++- `RangeLowerPrice : decimal`
++- `RangeUpperPrice : decimal`
++- `LiquidityUsd : decimal`
++- `HorizonDays : int`
++- `VolatilityAssumptionPct : double`
++- `VolumeAssumptionUsdPerDay : decimal`
++- `PresetProfile : string` (`Defensive|Balanced|Aggressive|Custom`)
++
++#### Outputs/state
++- `Result : SimulationResultVm`
++  - `EstimatedFeeUsd : decimal`
++  - `EstimatedIlUsd : decimal`
++  - `NetPnlUsd : decimal`
++  - `OutOfRangeProbabilityPct : double`
++  - `ExpectedInRangePct : double`
++  - `WorstCaseDrawdownUsd : decimal`
++  - `Warnings : IReadOnlyList<string>`
++- `Snapshots : ObservableCollection<SimulationSnapshotVm>`
++- `StatusMessage : string`
++- `IsBusy : bool`
++
++#### Commands
++- `RunSimulationCommand`
++- `SaveAsPaperPositionCommand`
++- `SaveScenarioSnapshotCommand`
++- `LoadPresetCommand(string presetId)`
++- `ResetCommand`
++
++### Data/API contract
++
++#### v1 (no new backend required)
++- Seed inputs from:
++  - selected Discover row
++  - existing paper position
++- Run simulation client-side with deterministic formula set (documented in code comments).
++- Save scenario as paper position via existing `POST /api/paper-positions`.
++
++#### v2 (optional server endpoint)
++Add:
++- `POST /api/simulations/run`
++- `GET /api/simulations/history?ownerTag=...`
++
++### UX contract
++- **Left form panel**: scenario parameters and preset loader.
++- **Right result panel**: summary KPIs + warning badges.
++- **Bottom chart/table**: simple path snapshots (P10/P50/P90 or deterministic points).
++
++### Acceptance criteria
++- Running simulation never mutates server state until explicit save.
++- Preset load modifies only relevant fields and keeps manual edits where possible.
++- “Save as Paper Position” writes valid DTO and appears on Paper Positions page after refresh.
++
++---
++
++## Cross-page routing + interaction contract
++
++### Navigation intents
++- Track → Discover: open filtered candidate list for selected pool.
++- Discover → Simulate: prefill scenario using selected row.
++- Simulate → Paper Positions: save output and navigate to position list.
++
++### Shared contracts
++
++#### Shared enum-like values
++- `PresetProfile`: `Defensive|Balanced|Aggressive|Custom`
++- `RowStatus`: `Healthy|Warn|OutOfRange|Stale`
++
++#### Shared ID strategy
++- Use `PoolAddress` as primary row identity when available.
++- Use `(ChainId, Token0, Token1, FeeTier)` normalized fallback key for joins.
++
++---
++
++## Implementation backlog (engineering sequence)
++
++### Phase A: Scaffolding (desktop only)
++1. Add `TrackPageViewModel`, `DiscoverPageViewModel`, `SimulatePageViewModel`.
++2. Add placeholder views and bind shell navigation entries.
++3. Add simple state models (`TrackRowVm`, `DiscoverRowVm`, `SimulationResultVm`).
++
++### Phase B: Wiring existing APIs
++1. Track: aggregate recommendations + active pools + paper positions.
++2. Discover: connect to recommendations endpoint with local filtering/sorting.
++3. Simulate: prefill from Discover row; save via paper positions endpoint.
++
++### Phase C: UX + resilience
++1. Loading/empty/error states on all pages.
++2. Consistent status chip visuals and preset badges.
++3. Add telemetry counters (load duration, row counts, error counts).
++
++### Phase D: Optional server extensions
++1. Add simulation run/history endpoints.
++2. Persist scenario snapshots.
++3. Add server-computed risk metrics for Track KPIs.
++
++---
++
++## Non-goals for this contract
++- Real on-chain execution in these pages.
++- Wallet signing flows.
++- Production-grade backtesting engine.
++
++These can be added after Track/Discover/Simulate MVP proves workflow value.
+-- 
+2.53.0.windows.1
+
