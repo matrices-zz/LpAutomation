@@ -1,6 +1,9 @@
+using Microsoft.OpenApi.Models;
 using LpAutomation.Server.Persistence;
 using LpAutomation.Server.Services.Pools;
 using LpAutomation.Server.Strategy;
+using LpAutomation.Server.PaperPositions;
+using LpAutomation.Contracts.PaperPositions;
 using LpAutomation.Server.Services.Tokens;
 using LpAutomation.Server.Storage;
 using System.IO;
@@ -16,7 +19,17 @@ builder.Services.AddMemoryCache();
 builder.Services.Configure<RpcProviderOptions>(builder.Configuration);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "LpAutomation API",
+        Version = "v1"
+    });
+});
+
+builder.Services.AddSingleton<IPaperPositionStore, InMemoryPaperPositionStore>();
 
 var baseDir = builder.Environment.IsDevelopment()
     ? builder.Environment.ContentRootPath
@@ -41,6 +54,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "LpAutomation API v1");
+    c.RoutePrefix = "swagger";
+});
+
 app.UseReDoc(c =>
 {
     c.RoutePrefix = "redoc";
