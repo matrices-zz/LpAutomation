@@ -59,7 +59,9 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "LpAutomation API v1");
     c.RoutePrefix = "swagger";
+    c.EnableTryItOutByDefault(); // add this
 });
+
 
 app.UseReDoc(c =>
 {
