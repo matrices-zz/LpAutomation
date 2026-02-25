@@ -20,8 +20,7 @@ public sealed class PaperPositionsController : ControllerBase
         [FromQuery] string? ownerTag = null,
         [FromQuery] int take = 200)
     {
-        var rows = _store.List(ownerTag, take);
-        return Ok(rows);
+        return Ok(_store.List(ownerTag, take));
     }
 
     [HttpGet("{id:guid}")]

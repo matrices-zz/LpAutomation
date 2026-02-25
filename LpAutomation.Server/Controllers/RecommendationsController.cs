@@ -1,7 +1,7 @@
 ﻿using LpAutomation.Core.Strategy;
+using LpAutomation.Server.PaperPositions;
 using LpAutomation.Server.Services.Pools;
 using LpAutomation.Server.Services.Tokens;
-using LpAutomation.Server.Storage;
 using LpAutomation.Server.Strategy;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,38 +14,27 @@ public sealed class RecommendationsController : ControllerBase
     private readonly IRecommendationStore _store;
     private readonly ITokenRegistry _tokens;
     private readonly IPoolAddressResolver _pools;
-    private readonly ActivePoolRepository _activePools;
+    private readonly IPaperPositionStore _paper;
 
     public RecommendationsController(
         IRecommendationStore store,
         ITokenRegistry tokens,
         IPoolAddressResolver pools,
-        ActivePoolRepository activePools)
+        IPaperPositionStore paper)
     {
         _store = store;
         _tokens = tokens;
         _pools = pools;
-        _activePools = activePools;
+        _paper = paper;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery] int take = 50, CancellationToken ct = default)
+    public async Task<IActionResult> Get(
+        [FromQuery] int take = 50,
+        [FromQuery] string? ownerTag = null,
+        CancellationToken ct = default)
     {
         var list = _store.GetLatest(Math.Clamp(take, 1, 200));
-
-        // Touch durable active pools from recommendation stream
-        foreach (var r in list)
-        {
-            await _activePools.UpsertSeenAsync(
-                chainId: (int)r.ChainId,
-                token0: r.Token0,
-                token1: r.Token1,
-                feeTier: r.FeeTier,
-                source: "strategy",
-                status: "active",
-                seenUtc: r.CreatedUtc,
-                ct: ct);
-        }
 
         var outList = new List<object>(list.Count);
 
@@ -78,6 +67,14 @@ public sealed class RecommendationsController : ControllerBase
                 poolAddr = null;
             }
 
+            // NEW: attach best-matching paper position (if any)
+            var paperPosition = _paper.FindBestMatch(
+                ownerTag: ownerTag,
+                chainId: chainId,
+                token0Symbol: r.Token0,
+                token1Symbol: r.Token1,
+                feeTier: r.FeeTier);
+
             outList.Add(new
             {
                 id = r.Id,
@@ -91,11 +88,15 @@ public sealed class RecommendationsController : ControllerBase
                 reallocateScore = r.ReallocateScore,
                 summary = r.Summary,
                 detailsJson = detailsJson,
+
                 dex,
                 protocolVersion,
                 token0Address = token0Addr,
                 token1Address = token1Addr,
-                poolAddress = poolAddr
+                poolAddress = poolAddr,
+
+                // NEW field
+                paperPosition
             });
         }
 
