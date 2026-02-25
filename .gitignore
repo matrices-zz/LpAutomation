@@ -370,3 +370,11 @@ LpAutomation.Server/*.db-wal
 check-swagger.ps1
 /LpAutomation.Server/lpautomation.db-shm
 /LpAutomation.Server/lpautomation.db-wal
+
+# Local SQLite runtime artifacts (do not commit)
+LpAutomation.Server/*.db
+LpAutomation.Server/*.db-shm
+LpAutomation.Server/*.db-wal
+
+# Local/one-off helper scripts not part of product
+check-swagger.ps1
