@@ -153,6 +153,7 @@
 					<DataGrid.Styles>
 						<Style Selector="DataGridColumnHeader">
 							<Setter Property="FontWeight" Value="SemiBold" />
+							<Setter Property="HorizontalContentAlignment" Value="Center" />
 						</Style>
 						<Style Selector="DataGridCell">
 							<Setter Property="Padding" Value="10,8" />
@@ -189,22 +190,26 @@
 						<DataGridTemplateColumn Header="Decision" Width="Auto" MinWidth="170">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
-									<StackPanel Orientation="Horizontal" Spacing="6">
-										<Border Background="{Binding DecisionBrush}" CornerRadius="10" Padding="10,4" Margin="2,3">
-											<TextBlock Text="{Binding DecisionLabel}" />
-										</Border>
-										<TextBlock Text="{Binding DecisionConfidence, StringFormat=Conf {0}}"
-										       VerticalAlignment="Center"
-										       ToolTip.Tip="{Binding DecisionConfidenceTooltip}" />
-									</StackPanel>
+									<Border Background="{Binding DecisionBrush}" CornerRadius="10" Padding="10,4" Margin="2,3"
+											HorizontalAlignment="Center"
+											VerticalAlignment="Center"
+											ToolTip.Tip="{Binding DecisionConfidenceTooltip}"
+											Width="118">
+										<TextBlock Text="{Binding DecisionLabel}" TextAlignment="Center"
+												   HorizontalAlignment="Center" VerticalAlignment="Center" />
+									</Border>
 								</DataTemplate>
 							</DataGridTemplateColumn.CellTemplate>
 						</DataGridTemplateColumn>
 						<DataGridTemplateColumn Header="Reinvest" Width="Auto" MinWidth="110">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
-									<Border Background="{Binding ReinvestBrush}" CornerRadius="10" Padding="10,4" Margin="2,3">
-										<TextBlock Text="{Binding Reinvest}" />
+									<Border Background="{Binding ReinvestBrush}" CornerRadius="10" Padding="10,4" Margin="2,3"
+										HorizontalAlignment="Center" VerticalAlignment="Center"
+										ToolTip.Tip="{Binding ReinvestTooltip}"
+											Width="64">
+										<TextBlock Text="{Binding Reinvest}" TextAlignment="Center"
+												   HorizontalAlignment="Center" VerticalAlignment="Center" />
 									</Border>
 								</DataTemplate>
 							</DataGridTemplateColumn.CellTemplate>
@@ -212,8 +217,12 @@
 						<DataGridTemplateColumn Header="Reallocate" Width="Auto" MinWidth="115">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
-									<Border Background="{Binding ReallocateBrush}" CornerRadius="10" Padding="10,4" Margin="2,3">
-										<TextBlock Text="{Binding Reallocate}" />
+									<Border Background="{Binding ReallocateBrush}" CornerRadius="10" Padding="10,4" Margin="2,3"
+										HorizontalAlignment="Center" VerticalAlignment="Center"
+										ToolTip.Tip="{Binding ReallocateTooltip}"
+											Width="64">
+										<TextBlock Text="{Binding Reallocate}" TextAlignment="Center"
+												   HorizontalAlignment="Center" VerticalAlignment="Center" />
 									</Border>
 								</DataTemplate>
 							</DataGridTemplateColumn.CellTemplate>
@@ -221,18 +230,30 @@
 						<DataGridTemplateColumn Header="Market Heat" Width="Auto" MinWidth="95">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
-									<TextBlock Text="{Binding MarketHeat}" ToolTip.Tip="{Binding MarketHeatTooltip}"/>
+									<TextBlock Text="{Binding MarketHeat}" ToolTip.Tip="{Binding MarketHeatTooltip}"
+									   TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 								</DataTemplate>
 							</DataGridTemplateColumn.CellTemplate>
 						</DataGridTemplateColumn>
 						<DataGridTemplateColumn Header="Opportunity" Width="Auto" MinWidth="100">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
-									<TextBlock Text="{Binding OpportunityScore}" ToolTip.Tip="{Binding OpportunityTooltip}"/>
+									<TextBlock Text="{Binding OpportunityScore}" ToolTip.Tip="{Binding OpportunityTooltip}"
+									   TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 								</DataTemplate>
 							</DataGridTemplateColumn.CellTemplate>
 						</DataGridTemplateColumn>
-						<DataGridTextColumn Header="Summary" Width="2*" MinWidth="300" Binding="{Binding Summary}" />
+						<DataGridTemplateColumn Header="Summary" Width="2*" MinWidth="300">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding Summary}"
+											   TextWrapping="Wrap"
+											   MaxLines="3"
+											   TextTrimming="CharacterEllipsis"
+											   ToolTip.Tip="Summary legend: T = Tactical (short-term setup), S = Strategic (swing/medium horizon), M = Macro (broad market regime), SM = Super Macro (long-horizon structural regime)." />
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
 						<DataGridTextColumn Header="Updated" Width="Auto" MinWidth="150" Binding="{Binding UpdatedLabel}" />
 
 						<DataGridTemplateColumn Header="Action" Width="Auto" MinWidth="110">

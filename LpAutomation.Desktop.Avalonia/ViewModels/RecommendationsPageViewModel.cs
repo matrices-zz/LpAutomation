@@ -125,6 +125,8 @@ public partial class RecommendationsPageViewModel : ObservableObject
                 var decisionTooltip = $"Decision confidence = |Reinvest - Reallocate| = {decisionConfidence}. Higher means clearer directional bias.";
                 var heatTooltip = $"Market Heat (0-100): blended risk temperature from multi-timeframe signals. Lower is cooler, higher is hotter/riskier. Current: {heat}.";
                 var opportunityTooltip = BuildOpportunityTooltip(marketScore, decisionConfidence, Math.Max(dto.ReinvestScore, dto.ReallocateScore), heat, volatilityM15);
+                var reinvestTooltip = BuildActionScoreTooltip("Reinvest", dto.ReinvestScore, heat, volatilityM15);
+                var reallocateTooltip = BuildActionScoreTooltip("Reallocate", dto.ReallocateScore, heat, volatilityM15);
 
                 Rows.Add(new RecommendationRowVm
                 {
@@ -138,8 +140,10 @@ public partial class RecommendationsPageViewModel : ObservableObject
                     RegimeLabel = RegimeToLabel(dto.Regime),
                     Reinvest = dto.ReinvestScore,
                     ReinvestBrush = ReinvestScoreToBrush(dto.ReinvestScore),
+                    ReinvestTooltip = reinvestTooltip,
                     Reallocate = dto.ReallocateScore,
                     ReallocateBrush = ReallocateScoreToBrush(dto.ReallocateScore),
+                    ReallocateTooltip = reallocateTooltip,
                     DecisionLabel = decisionLabel,
                     DecisionConfidence = decisionConfidence,
                     DecisionBrush = decisionBrush,
@@ -181,6 +185,7 @@ public partial class RecommendationsPageViewModel : ObservableObject
         Status = "Discover filters reset.";
     }
 
+
     [RelayCommand]
     private void ResetSort()
     {
@@ -203,6 +208,7 @@ public partial class RecommendationsPageViewModel : ObservableObject
             ? "Pool address unavailable for this row."
             : $"Queued for Simulate: {poolAddress}";
     }
+
 
     [RelayCommand]
     private void ToggleDexSelector()
@@ -267,6 +273,7 @@ public partial class RecommendationsPageViewModel : ObservableObject
         SelectedChain = ChainOptions.Contains(selectedChain) ? selectedChain : ChainOptions[0];
         UpdateSelectedDexSummary();
     }
+
 
     private void OnDexOptionChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
@@ -395,6 +402,9 @@ public partial class RecommendationsPageViewModel : ObservableObject
         _ => $"Chain {chainId}"
     };
 
+
+
+
     private static (string Label, int Confidence, string Brush) ComputeDecision(int reinvest, int reallocate)
     {
         var delta = reinvest - reallocate;
@@ -429,6 +439,7 @@ public partial class RecommendationsPageViewModel : ObservableObject
         return Math.Clamp((int)Math.Round(raw), 0, 100);
     }
 
+
     private static string BuildOpportunityTooltip(int score, int confidence, int dominantAction, int heat, double volatility)
     {
         var heatPenalty = 100 - Math.Clamp(heat, 0, 100);
@@ -437,6 +448,20 @@ public partial class RecommendationsPageViewModel : ObservableObject
         return $"Opportunity score {score}/100\n" +
                $"Weights: confidence 45%, action 30%, heat 15%, volatility 10%\n" +
                $"Inputs: confidence={confidence}, dominantAction={dominantAction}, heatPenalty={heatPenalty}, volPenalty={volPenalty}";
+    }
+
+
+    private static string BuildActionScoreTooltip(string actionName, int score, int heat, double volatility)
+    {
+        var volatilityBps = Math.Round(volatility * 10_000, MidpointRounding.AwayFromZero);
+
+        return $"{actionName} score: {score}/100\n" +
+               "Derived from weighted market signals (5m, 15m, 1h, 6h, 24h):\n" +
+               "• Price-action trend and momentum\n" +
+               "• Relative volume/participation\n" +
+               $"• Heat/risk context (current heat: {heat})\n" +
+               $"• Intraday volatility context (15m: {volatilityBps} bps)\n" +
+               "Higher score means stronger signal for this action.";
     }
 
     private static int TryGetBlendedHeat(string? detailsJson)

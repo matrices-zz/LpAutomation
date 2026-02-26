@@ -15,9 +15,11 @@ public sealed class RecommendationRowVm
 
     public int Reinvest { get; init; }
     public string ReinvestBrush { get; init; } = "#64748B";
+    public string ReinvestTooltip { get; init; } = "";
 
     public int Reallocate { get; init; }
     public string ReallocateBrush { get; init; } = "#64748B";
+    public string ReallocateTooltip { get; init; } = "";
 
     public string DecisionLabel { get; init; } = "Hold";
     public int DecisionConfidence { get; init; }
