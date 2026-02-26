@@ -20,7 +20,7 @@
 				CornerRadius="8"
 				Padding="10">
 			<Grid RowDefinitions="Auto,Auto" RowSpacing="8">
-				<Grid ColumnDefinitions="Auto,280,180,180,170,170,*,Auto" ColumnSpacing="8">
+				<Grid ColumnDefinitions="Auto,280,180,170,170,*,Auto" ColumnSpacing="8">
 					<Button Grid.Column="0"
 							Content="Refresh"
 							Command="{Binding RefreshCommand}" />
@@ -29,41 +29,85 @@
 							 Watermark="Search pools, token, address..."
 							 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
 
-
 					<ComboBox Grid.Column="2"
-							  ItemsSource="{Binding DexOptions}"
-							  SelectedItem="{Binding SelectedDex}" />
-
-					<ComboBox Grid.Column="3"
 							  ItemsSource="{Binding ChainOptions}"
 							  SelectedItem="{Binding SelectedChain}" />
 
-					<ComboBox Grid.Column="4"
+					<ComboBox Grid.Column="3"
 							  ItemsSource="{Binding RegimeOptions}"
 							  SelectedItem="{Binding SelectedRegime}" />
 
-					<ComboBox Grid.Column="5"
+					<ComboBox Grid.Column="4"
 							  ItemsSource="{Binding TimeframeOptions}"
 							  SelectedItem="{Binding SelectedTimeframe}" />
 
-					<TextBlock Grid.Column="6"
+					<TextBlock Grid.Column="5"
 							   VerticalAlignment="Center"
 							   Text="{Binding Status}" />
 
-					<Button Grid.Column="7"
+					<Button Grid.Column="6"
 							Content="Reset"
 							Command="{Binding ResetFiltersCommand}" />
 				</Grid>
 
-				<Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
-					<TextBlock Grid.Column="0"
-							   VerticalAlignment="Center"
-							   Text="{Binding CountLabel}" />
+				<Grid Grid.Row="1" RowDefinitions="Auto,Auto" RowSpacing="6">
+					<Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
+						<TextBlock Grid.Column="0"
+								   VerticalAlignment="Center"
+								   Text="{Binding CountLabel}" />
 
-					<ComboBox Grid.Column="1"
-							  Width="190"
-							  ItemsSource="{Binding SortOptions}"
-							  SelectedItem="{Binding SelectedSort}" />
+						<Grid Grid.Column="1" Width="320">
+							<ToggleButton x:Name="DexToggleAnchor" Content="{Binding SelectedDexSummary}"
+										  IsChecked="{Binding IsDexSelectorOpen}"
+										  HorizontalAlignment="Stretch" />
+
+							<Popup IsOpen="{Binding IsDexSelectorOpen}"
+									 Placement="Bottom"
+									 PlacementTarget="{Binding #DexToggleAnchor}"
+									 Width="360">
+								<Border Background="#1D2230" BorderBrush="#323848" BorderThickness="1" CornerRadius="8" Padding="8">
+									<Grid RowDefinitions="Auto,*" RowSpacing="8" MinHeight="0">
+										<Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="6">
+											<Button Grid.Column="0" Content="All" Command="{Binding SelectAllDexesCommand}" />
+											<Button Grid.Column="1" Content="Clear" Command="{Binding ClearDexesCommand}" />
+											<Button Grid.Column="2" HorizontalAlignment="Right" Content="Done" Command="{Binding ToggleDexSelectorCommand}" />
+										</Grid>
+
+										<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MinHeight="220" MaxHeight="280">
+											<ItemsControl ItemsSource="{Binding DexFilterOptions}">
+												<ItemsControl.ItemTemplate>
+													<DataTemplate>
+														<CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="0,2,0,2"/>
+													</DataTemplate>
+												</ItemsControl.ItemTemplate>
+											</ItemsControl>
+										</ScrollViewer>
+									</Grid>
+								</Border>
+							</Popup>
+						</Grid>
+
+						<ComboBox Grid.Column="2"
+								  Width="190"
+								  ItemsSource="{Binding SortOptions}"
+								  SelectedItem="{Binding SelectedSort}" />
+
+						<Button Grid.Column="3"
+								Content="Reset Sort"
+								Command="{Binding ResetSortCommand}" />
+					</Grid>
+
+					<ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+						<StackPanel Orientation="Horizontal" Spacing="6">
+							<TextBlock Text="Presets:" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+							<Button Content="All Opportunities" Command="{Binding SetPresetCommand}" CommandParameter="All Opportunities"/>
+							<Button Content="High Reinvest" Command="{Binding SetPresetCommand}" CommandParameter="High Reinvest (&gt;=70)"/>
+							<Button Content="High Reallocate" Command="{Binding SetPresetCommand}" CommandParameter="High Reallocate (&gt;=70)"/>
+							<Button Content="Trending + Low Fee" Command="{Binding SetPresetCommand}" CommandParameter="Trending + Low Fee"/>
+							<Button Content="Updated 24h" Command="{Binding SetPresetCommand}" CommandParameter="Recently Updated (24h)"/>
+							<TextBlock Text="{Binding SelectedPreset}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+						</StackPanel>
+					</ScrollViewer>
 				</Grid>
 			</Grid>
 		</Border>
@@ -102,13 +146,19 @@
 						  ScrollViewer.VerticalScrollBarVisibility="Visible"
 						  ScrollViewer.AllowAutoHide="False"
 						  MinHeight="0"
-						  RowHeight="36"
+						  RowHeight="46"
 						  BorderThickness="0"
 						  Background="Transparent">
 
 					<DataGrid.Styles>
 						<Style Selector="DataGridColumnHeader">
 							<Setter Property="FontWeight" Value="SemiBold" />
+						</Style>
+						<Style Selector="DataGridCell">
+							<Setter Property="Padding" Value="10,8" />
+						</Style>
+						<Style Selector="DataGridRow">
+							<Setter Property="Margin" Value="0,2" />
 						</Style>
 						<Style Selector="DataGrid ScrollBar:vertical">
 							<Setter Property="IsVisible" Value="True" />
@@ -136,8 +186,52 @@
 						<DataGridTextColumn Header="Chain" Width="Auto" MinWidth="110" Binding="{Binding ChainLabel}" />
 						<DataGridTextColumn Header="Fee" Width="Auto" MinWidth="85" Binding="{Binding FeeLabel}" />
 						<DataGridTextColumn Header="Regime" Width="Auto" MinWidth="105" Binding="{Binding RegimeLabel}" />
-						<DataGridTextColumn Header="Reinvest" Width="Auto" MinWidth="90" Binding="{Binding Reinvest}" />
-						<DataGridTextColumn Header="Reallocate" Width="Auto" MinWidth="95" Binding="{Binding Reallocate}" />
+						<DataGridTemplateColumn Header="Decision" Width="Auto" MinWidth="170">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate>
+									<StackPanel Orientation="Horizontal" Spacing="6">
+										<Border Background="{Binding DecisionBrush}" CornerRadius="10" Padding="10,4" Margin="2,3">
+											<TextBlock Text="{Binding DecisionLabel}" />
+										</Border>
+										<TextBlock Text="{Binding DecisionConfidence, StringFormat=Conf {0}}"
+										       VerticalAlignment="Center"
+										       ToolTip.Tip="{Binding DecisionConfidenceTooltip}" />
+									</StackPanel>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+						<DataGridTemplateColumn Header="Reinvest" Width="Auto" MinWidth="110">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate>
+									<Border Background="{Binding ReinvestBrush}" CornerRadius="10" Padding="10,4" Margin="2,3">
+										<TextBlock Text="{Binding Reinvest}" />
+									</Border>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+						<DataGridTemplateColumn Header="Reallocate" Width="Auto" MinWidth="115">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate>
+									<Border Background="{Binding ReallocateBrush}" CornerRadius="10" Padding="10,4" Margin="2,3">
+										<TextBlock Text="{Binding Reallocate}" />
+									</Border>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+						<DataGridTemplateColumn Header="Market Heat" Width="Auto" MinWidth="95">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding MarketHeat}" ToolTip.Tip="{Binding MarketHeatTooltip}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+						<DataGridTemplateColumn Header="Opportunity" Width="Auto" MinWidth="100">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding OpportunityScore}" ToolTip.Tip="{Binding OpportunityTooltip}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
 						<DataGridTextColumn Header="Summary" Width="2*" MinWidth="300" Binding="{Binding Summary}" />
 						<DataGridTextColumn Header="Updated" Width="Auto" MinWidth="150" Binding="{Binding UpdatedLabel}" />
 

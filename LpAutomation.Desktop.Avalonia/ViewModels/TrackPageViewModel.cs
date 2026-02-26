@@ -15,6 +15,18 @@ namespace LpAutomation.Desktop.Avalonia.ViewModels;
 public partial class TrackPageViewModel : ObservableObject
 {
     private const int MaxTrackedPools = 6;
+
+    private static readonly IReadOnlyDictionary<string, long> SupportedChains = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Ethereum"] = 1,
+        ["Arbitrum"] = 42161,
+        ["Optimism"] = 10,
+        ["Polygon"] = 137,
+        ["Base"] = 8453,
+        ["BNB Chain"] = 56,
+        ["Avalanche"] = 43114,
+        ["Celo"] = 42220
+    };
     private readonly ConfigApiClient _configApi;
     private readonly RecommendationsApiClient _recsApi;
     private readonly PaperPositionsApiClient _paperApi;
@@ -30,6 +42,8 @@ public partial class TrackPageViewModel : ObservableObject
         _paperApi = paperApi;
 
         Rows = new ObservableCollection<TrackRowVm>();
+        ChainOptions = new ObservableCollection<string>(new[] { "All Chains" }.Concat(SupportedChains.Keys.OrderBy(x => x)));
+        SelectedChain = ChainOptions[0];
         OwnerTagFilter = "eddie-dev";
         RefreshIntervalSeconds = 30;
         StatusMessage = "Ready";
@@ -37,11 +51,12 @@ public partial class TrackPageViewModel : ObservableObject
     }
 
     public ObservableCollection<TrackRowVm> Rows { get; }
+    public ObservableCollection<string> ChainOptions { get; }
 
     public string AutoRefreshButtonLabel => AutoRefreshEnabled ? "Stop Auto" : "Start Auto";
 
     [ObservableProperty] private string _ownerTagFilter = "";
-    [ObservableProperty] private string _chainFilterText = "";
+    [ObservableProperty] private string _selectedChain = "All Chains";
     [ObservableProperty] private int _refreshIntervalSeconds;
     [ObservableProperty] private bool _autoRefreshEnabled;
     [ObservableProperty] private string _statusMessage = "";
@@ -72,7 +87,7 @@ public partial class TrackPageViewModel : ObservableObject
             var recs = recsTask.Result;
             var paper = paperTask.Result;
 
-            if (TryGetChainFilter(out var chainId))
+            if (TryGetSelectedChainId(out var chainId))
             {
                 activePools = activePools.Where(x => x.ChainId == chainId).ToList();
                 recs = recs.Where(x => x.ChainId == chainId).ToList();
@@ -191,19 +206,19 @@ public partial class TrackPageViewModel : ObservableObject
         _autoRefreshCts = null;
     }
 
-    private bool TryGetChainFilter(out long chainId)
+    private bool TryGetSelectedChainId(out long chainId)
     {
         chainId = 0;
-        if (string.IsNullOrWhiteSpace(ChainFilterText))
+        if (string.Equals(SelectedChain, "All Chains", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        if (long.TryParse(ChainFilterText.Trim(), out var parsed))
+        if (SupportedChains.TryGetValue(SelectedChain, out var mapped))
         {
-            chainId = parsed;
+            chainId = mapped;
             return true;
         }
 
-        StatusMessage = "Chain filter ignored: expected integer chain id.";
+        StatusMessage = "Selected chain is not recognized; chain filter ignored.";
         return false;
     }
 

@@ -31,10 +31,10 @@
 						 Watermark="OwnerTag filter..."
 						 HorizontalAlignment="Stretch" />
 
-				<TextBox Grid.Column="2"
-						 Text="{Binding ChainFilterText}"
-						 Watermark="Chain"
-						 HorizontalAlignment="Stretch" />
+				<ComboBox Grid.Column="2"
+						  ItemsSource="{Binding ChainOptions}"
+						  SelectedItem="{Binding SelectedChain}"
+						  HorizontalAlignment="Stretch" />
 
 				<TextBox Grid.Column="3"
 						 Text="{Binding RefreshIntervalSeconds}"
@@ -103,96 +103,100 @@
 			<!-- Keep DataGrid constrained to this pane so scrollbars compute real extents -->
 			<Grid x:Name="ResultsViewport" MinHeight="0" RowDefinitions="*">
 
-			<DataGrid Grid.Row="0" ItemsSource="{Binding Rows}"
-					  IsReadOnly="True"
-					  AutoGenerateColumns="False"
-					  CanUserResizeColumns="True"
-					  CanUserSortColumns="False"
-					  HeadersVisibility="Column"
-					  GridLinesVisibility="None"
-					  HorizontalAlignment="Stretch"
-					  VerticalAlignment="Stretch"
-					  ScrollViewer.HorizontalScrollBarVisibility="Auto"
-					  ScrollViewer.VerticalScrollBarVisibility="Visible"
-					  ScrollViewer.AllowAutoHide="False"
-					  ScrollViewer.IsScrollChainingEnabled="False"
-					  MinHeight="0"
-					  RowHeight="36"
-					  BorderThickness="0"
-					  Background="Transparent">
+				<DataGrid Grid.Row="0" ItemsSource="{Binding Rows}"
+						  IsReadOnly="True"
+						  AutoGenerateColumns="False"
+						  CanUserResizeColumns="True"
+						  CanUserSortColumns="False"
+						  HeadersVisibility="Column"
+						  GridLinesVisibility="None"
+						  HorizontalAlignment="Stretch"
+						  VerticalAlignment="Stretch"
+						  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+						  ScrollViewer.VerticalScrollBarVisibility="Visible"
+						  ScrollViewer.AllowAutoHide="False"
+						  ScrollViewer.IsScrollChainingEnabled="False"
+						  MinHeight="0"
+						  RowHeight="42"
+						  BorderThickness="0"
+						  Background="Transparent">
 
-				<DataGrid.Styles>
-					<Style Selector="DataGridColumnHeader">
-						<Setter Property="FontWeight" Value="SemiBold" />
-					</Style>
-					<Style Selector="DataGrid ScrollBar:vertical">
-						<Setter Property="IsVisible" Value="True" />
-						<Setter Property="Width" Value="14" />
-						<Setter Property="Opacity" Value="1" />
-						<Setter Property="Background" Value="#202938" />
-					</Style>
-					<Style Selector="DataGrid /template/ ScrollBar:vertical">
-						<Setter Property="IsVisible" Value="True" />
-						<Setter Property="Width" Value="14" />
-						<Setter Property="Opacity" Value="1" />
-					</Style>
-					<Style Selector="DataGrid ScrollBar:vertical:disabled">
-						<Setter Property="IsVisible" Value="True" />
-						<Setter Property="Opacity" Value="1" />
-						<Setter Property="Background" Value="#253043" />
-					</Style>
-					<Style Selector="DataGrid ScrollBar:horizontal">
-						<Setter Property="Height" Value="14" />
-						<Setter Property="Opacity" Value="1" />
-						<Setter Property="Background" Value="#202938" />
-					</Style>
-					<Style Selector="DataGrid ScrollBar /template/ Thumb">
-						<Setter Property="Background" Value="#A8C0E8" />
-						<Setter Property="MinHeight" Value="28" />
-						<Setter Property="MinWidth" Value="28" />
-						<Setter Property="CornerRadius" Value="7" />
-						<Setter Property="Opacity" Value="1" />
-					</Style>
-					<Style Selector="DataGrid ScrollBar:vertical:disabled /template/ Thumb">
-						<Setter Property="Background" Value="#637792" />
-						<Setter Property="MinHeight" Value="28" />
-						<Setter Property="CornerRadius" Value="7" />
-						<Setter Property="Opacity" Value="1" />
-					</Style>
-				</DataGrid.Styles>
+					<DataGrid.Styles>
+						<Style Selector="DataGridColumnHeader">
+							<Setter Property="FontWeight" Value="SemiBold" />
+						</Style>
+						<Style Selector="DataGridCell">
+							<Setter Property="Padding" Value="8,6" />
+						</Style>
 
-				<DataGrid.Columns>
-					<DataGridTextColumn Header="Pair" Width="1*" MinWidth="130" Binding="{Binding Pair}" />
+						<Style Selector="DataGrid ScrollBar:vertical">
+							<Setter Property="IsVisible" Value="True" />
+							<Setter Property="Width" Value="14" />
+							<Setter Property="Opacity" Value="1" />
+							<Setter Property="Background" Value="#202938" />
+						</Style>
+						<Style Selector="DataGrid /template/ ScrollBar:vertical">
+							<Setter Property="IsVisible" Value="True" />
+							<Setter Property="Width" Value="14" />
+							<Setter Property="Opacity" Value="1" />
+						</Style>
+						<Style Selector="DataGrid ScrollBar:vertical:disabled">
+							<Setter Property="IsVisible" Value="True" />
+							<Setter Property="Opacity" Value="1" />
+							<Setter Property="Background" Value="#253043" />
+						</Style>
+						<Style Selector="DataGrid ScrollBar:horizontal">
+							<Setter Property="Height" Value="14" />
+							<Setter Property="Opacity" Value="1" />
+							<Setter Property="Background" Value="#202938" />
+						</Style>
+						<Style Selector="DataGrid ScrollBar /template/ Thumb">
+							<Setter Property="Background" Value="#A8C0E8" />
+							<Setter Property="MinHeight" Value="28" />
+							<Setter Property="MinWidth" Value="28" />
+							<Setter Property="CornerRadius" Value="7" />
+							<Setter Property="Opacity" Value="1" />
+						</Style>
+						<Style Selector="DataGrid ScrollBar:vertical:disabled /template/ Thumb">
+							<Setter Property="Background" Value="#637792" />
+							<Setter Property="MinHeight" Value="28" />
+							<Setter Property="CornerRadius" Value="7" />
+							<Setter Property="Opacity" Value="1" />
+						</Style>
+					</DataGrid.Styles>
 
-					<DataGridTemplateColumn Header="Pool" Width="1*" MinWidth="145">
-						<DataGridTemplateColumn.CellTemplate>
-							<DataTemplate>
-								<Button Background="Transparent"
-										BorderThickness="0"
-										Padding="0"
-										HorizontalAlignment="Left"
-										Command="{Binding DataContext.OpenRecommendationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-										CommandParameter="{Binding PoolAddress}"
-										ToolTip.Tip="{Binding PoolAddress}">
-									<TextBlock Text="{Binding PoolAddressShort}"
-											   FontFamily="Consolas"
-											   TextTrimming="CharacterEllipsis" />
-								</Button>
-							</DataTemplate>
-						</DataGridTemplateColumn.CellTemplate>
-					</DataGridTemplateColumn>
+					<DataGrid.Columns>
+						<DataGridTextColumn Header="Pair" Width="1*" MinWidth="130" Binding="{Binding Pair}" />
 
-					<DataGridTextColumn Header="Fee" Width="Auto" MinWidth="70" Binding="{Binding FeeTier}" />
-					<DataGridTextColumn Header="Regime" Width="Auto" MinWidth="105" Binding="{Binding Regime}" />
-					<DataGridTextColumn Header="Action" Width="Auto" MinWidth="115" Binding="{Binding RecommendationAction}" />
-					<DataGridTextColumn Header="Paper Position" Width="1.4*" MinWidth="200" Binding="{Binding PaperPositionId}" />
-					<DataGridTextColumn Header="Liq USD" Width="Auto" MinWidth="115" Binding="{Binding LiquidityUsd, StringFormat={}{0:N0}}" />
-					<DataGridTextColumn Header="Exposure %" Width="Auto" MinWidth="105" Binding="{Binding EstimatedExposurePct, StringFormat={}{0:0.0}}" />
-					<DataGridTextColumn Header="Status" Width="Auto" MinWidth="95" Binding="{Binding Status}" />
-					<DataGridTextColumn Header="Diagnostics" Width="2.2*" MinWidth="320" Binding="{Binding Diagnostics}" />
-					<DataGridTextColumn Header="Updated" Width="Auto" MinWidth="165" Binding="{Binding UpdatedUtc}" />
-				</DataGrid.Columns>
-			</DataGrid>
+						<DataGridTemplateColumn Header="Pool" Width="1*" MinWidth="145">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate>
+									<Button Background="Transparent"
+											BorderThickness="0"
+											Padding="0"
+											HorizontalAlignment="Left"
+											Command="{Binding DataContext.OpenRecommendationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+											CommandParameter="{Binding PoolAddress}"
+											ToolTip.Tip="{Binding PoolAddress}">
+										<TextBlock Text="{Binding PoolAddressShort}"
+												   FontFamily="Consolas"
+												   TextTrimming="CharacterEllipsis" />
+									</Button>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+
+						<DataGridTextColumn Header="Fee" Width="Auto" MinWidth="70" Binding="{Binding FeeTier}" />
+						<DataGridTextColumn Header="Regime" Width="Auto" MinWidth="105" Binding="{Binding Regime}" />
+						<DataGridTextColumn Header="Action" Width="Auto" MinWidth="115" Binding="{Binding RecommendationAction}" />
+						<DataGridTextColumn Header="Paper Position" Width="1.4*" MinWidth="200" Binding="{Binding PaperPositionId}" />
+						<DataGridTextColumn Header="Liq USD" Width="Auto" MinWidth="115" Binding="{Binding LiquidityUsd, StringFormat={}{0:N0}}" />
+						<DataGridTextColumn Header="Exposure %" Width="Auto" MinWidth="105" Binding="{Binding EstimatedExposurePct, StringFormat={}{0:0.0}}" />
+						<DataGridTextColumn Header="Status" Width="Auto" MinWidth="95" Binding="{Binding Status}" />
+						<DataGridTextColumn Header="Diagnostics" Width="2.2*" MinWidth="320" Binding="{Binding Diagnostics}" />
+						<DataGridTextColumn Header="Updated" Width="Auto" MinWidth="165" Binding="{Binding UpdatedUtc}" />
+					</DataGrid.Columns>
+				</DataGrid>
 			</Grid>
 		</Border>
 
