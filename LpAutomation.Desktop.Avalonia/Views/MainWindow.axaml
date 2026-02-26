@@ -50,7 +50,7 @@
 				Grid.ColumnSpan="2"
 				Background="{StaticResource BrandPrimaryBrush}"
 				Padding="18,12">
-			<Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+			<Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="10" VerticalAlignment="Center">
 				<TextBlock Grid.Column="0"
 						   Text="{Binding CurrentPageTitle}"
 						   FontSize="22"
@@ -60,11 +60,24 @@
 
 				<!-- keep bound to command that already exists in ShellViewModel -->
 				<Button Grid.Column="1"
-						Content="Test API"
+						Content="{Binding TestApiButtonText}"
 						Command="{Binding TestApiCommand}"
 						Margin="14,0,0,0"
 						Padding="16,9"
 						FontWeight="SemiBold"/>
+
+				<Ellipse Grid.Column="2"
+						 Width="10"
+						 Height="10"
+						 Fill="{Binding StatusKind, Converter={StaticResource StatusKindToBrushConverter}}"
+						 VerticalAlignment="Center"
+						 Margin="4,0,0,0" />
+
+				<TextBlock Grid.Column="3"
+						   VerticalAlignment="Center"
+						   Foreground="White"
+						   FontWeight="SemiBold"
+						   Text="{Binding StatusKind, Converter={StaticResource StatusKindToLabelConverter}}"/>
 			</Grid>
 		</Border>
 
@@ -106,146 +119,182 @@
 				Grid.Column="1"
 				BorderBrush="{StaticResource PanelBorderBrush}"
 				BorderThickness="0,1,0,0"
-				Padding="22">
-			<StackPanel Spacing="14">
+				Padding="22"
+				MinHeight="0">
+			<Grid RowDefinitions="Auto,*"
+				  RowSpacing="14"
+				  MinHeight="0">
 
-				<TextBlock Text="{Binding CurrentPageTitle}"
-						   FontSize="30"
-						   FontWeight="SemiBold"
-						   Foreground="{StaticResource TextPrimaryBrush}" />
+				<TextBlock Grid.Row="0"
+					   Text="{Binding CurrentPageTitle}"
+					   FontSize="30"
+					   FontWeight="SemiBold"
+					   Foreground="{StaticResource TextPrimaryBrush}" />
+				<Window xmlns="https://github.com/avaloniaui"
+						xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+						xmlns:conv="clr-namespace:LpAutomation.Desktop.Avalonia.Converters"
+						xmlns:vm="clr-namespace:LpAutomation.Desktop.Avalonia.ViewModels"
+						xmlns:views="clr-namespace:LpAutomation.Desktop.Avalonia.Views"
+						x:Class="LpAutomation.Desktop.Avalonia.Views.MainWindow"
+						Width="1240"
+						Height="800"
+						MinWidth="1080"
+						MinHeight="700"
+						Title="{Binding Title}"
+						Background="{StaticResource AppBackgroundBrush}">
 
-				<!-- KPI strip -->
-				<Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
-					<Border Grid.Column="0"
-							Background="{StaticResource KpiCardBrush}"
-							BorderBrush="{StaticResource KpiBorderBrush}"
-							BorderThickness="1"
-							CornerRadius="10"
-							Padding="12"
-							MinHeight="92">
-						<StackPanel Spacing="4">
-							<TextBlock Text="Calls"
-									   FontSize="12"
-									   Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding ApiCallCount}"
-									   FontSize="26"
-									   FontWeight="SemiBold"
-									   FontFamily="Consolas"
-									   Foreground="{StaticResource TextPrimaryBrush}" />
-						</StackPanel>
-					</Border>
+					<Window.Resources>
+						<conv:StatusKindToBrushConverter x:Key="StatusKindToBrushConverter" />
+						<conv:StatusKindToLabelConverter x:Key="StatusKindToLabelConverter" />
 
-					<Border Grid.Column="1"
-							Background="{StaticResource KpiCardBrush}"
-							BorderBrush="{StaticResource KpiBorderBrush}"
-							BorderThickness="1"
-							CornerRadius="10"
-							Padding="12"
-							MinHeight="92">
-						<StackPanel Spacing="4">
-							<TextBlock Text="Errors"
-									   FontSize="12"
-									   Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding ApiErrorCount}"
-									   FontSize="26"
-									   FontWeight="SemiBold"
-									   FontFamily="Consolas"
-									   Foreground="{StaticResource TextPrimaryBrush}" />
-						</StackPanel>
-					</Border>
 
-					<Border Grid.Column="2"
-							Background="{StaticResource KpiCardBrush}"
-							BorderBrush="{StaticResource KpiBorderBrush}"
-							BorderThickness="1"
-							CornerRadius="10"
-							Padding="12"
-							MinHeight="92">
-						<StackPanel Spacing="4">
-							<TextBlock Text="Payload"
-									   FontSize="12"
-									   Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding LastPayloadChars, StringFormat='{}{0} chars'}"
-									   FontSize="24"
-									   FontWeight="SemiBold"
-									   FontFamily="Consolas"
-									   Foreground="{StaticResource TextPrimaryBrush}" />
-						</StackPanel>
-					</Border>
+					</Window.Resources>
 
-					<Border Grid.Column="3"
-							Background="{StaticResource KpiCardBrush}"
-							BorderBrush="{StaticResource KpiBorderBrush}"
-							BorderThickness="1"
-							CornerRadius="10"
-							Padding="12"
-							MinHeight="92">
-						<StackPanel Spacing="4">
-							<TextBlock Text="Latency"
-									   FontSize="12"
-									   Foreground="{StaticResource TextMutedBrush}" />
-							<TextBlock Text="{Binding LastElapsedMs, StringFormat='{}{0:F0} ms'}"
-									   FontSize="24"
-									   FontWeight="SemiBold"
-									   FontFamily="Consolas"
-									   Foreground="{StaticResource TextPrimaryBrush}" />
-						</StackPanel>
-					</Border>
-				</Grid>
+					<!-- Phase 2.0 page mapping -->
+					<Window.DataTemplates>
+						<DataTemplate DataType="vm:TrackPageViewModel">
+							<views:TrackPageView />
+						</DataTemplate>
+						<DataTemplate DataType="vm:RecommendationsPageViewModel">
+							<views:RecommendationsPageView />
+						</DataTemplate>
+						<DataTemplate DataType="vm:PaperPositionsPageViewModel">
+							<views:PaperPositionsPageView />
+						</DataTemplate>
+						<DataTemplate DataType="vm:SettingsPageViewModel">
+							<views:SettingsPageView />
+						</DataTemplate>
+					</Window.DataTemplates>
 
-				<!-- Status card -->
-				<Border Background="{StaticResource PanelBackgroundBrush}"
-						BorderBrush="{StaticResource PanelBorderBrush}"
-						BorderThickness="1"
-						CornerRadius="10"
-						Padding="12">
-					<Grid ColumnDefinitions="Auto,Auto,*" RowDefinitions="Auto,Auto">
-						<Ellipse x:Name="StatusDot"
-								 Width="10"
-								 Height="10"
-								 Fill="{Binding StatusKind, Converter={StaticResource StatusKindToBrushConverter}}"
-								 VerticalAlignment="Center"
-								 Margin="0,0,10,0"
-								 Opacity="1.0" />
+					<Window.Styles>
+						<!-- Status chip soft transition -->
+						<Style Selector="Border#StatusChip">
+							<Setter Property="Opacity" Value="1" />
+							<Setter Property="Transitions">
+								<Transitions>
+									<DoubleTransition Property="Opacity" Duration="0:0:0.18"/>
+								</Transitions>
+							</Setter>
+						</Style>
+					</Window.Styles>
 
-						<Border x:Name="StatusChip"
-								Grid.Column="1"
-								Background="{Binding StatusKind, Converter={StaticResource StatusKindToBrushConverter}}"
-								CornerRadius="12"
-								Padding="10,3"
-								Margin="0,0,12,0"
-								VerticalAlignment="Center">
-							<TextBlock Text="{Binding StatusKind, Converter={StaticResource StatusKindToLabelConverter}}"
-									   FontWeight="SemiBold"
-									   Foreground="Black"
-									   FontSize="12"/>
+					<Grid RowDefinitions="Auto,*" ColumnDefinitions="300,*">
+
+						<!-- Top bar -->
+						<Border Grid.Row="0"
+								Grid.ColumnSpan="2"
+								Background="{StaticResource BrandPrimaryBrush}"
+								Padding="18,12">
+							<Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="10" VerticalAlignment="Center">
+								<TextBlock Grid.Column="0"
+										   Text="{Binding CurrentPageTitle}"
+										   FontSize="22"
+										   FontWeight="SemiBold"
+										   Foreground="White"
+										   VerticalAlignment="Center"/>
+
+								<!-- keep bound to command that already exists in ShellViewModel -->
+								<Button Grid.Column="1"
+										Content="{Binding TestApiButtonText}"
+										Command="{Binding TestApiCommand}"
+										Margin="14,0,0,0"
+										Padding="16,9"
+										FontWeight="SemiBold"/>
+
+								<Ellipse Grid.Column="2"
+										 Width="10"
+										 Height="10"
+										 Fill="{Binding StatusKind, Converter={StaticResource StatusKindToBrushConverter}}"
+										 VerticalAlignment="Center"
+										 Margin="4,0,0,0" />
+
+								<TextBlock Grid.Column="3"
+										   VerticalAlignment="Center"
+										   Foreground="White"
+										   FontWeight="SemiBold"
+										   Text="{Binding StatusKind, Converter={StaticResource StatusKindToLabelConverter}}"/>
+							</Grid>
 						</Border>
 
-						<TextBlock Grid.Column="2"
-								   Text="{Binding StatusMessage}"
-								   FontSize="14"
-								   VerticalAlignment="Center"
-								   Foreground="{StaticResource TextPrimaryBrush}" />
+						<!-- Left nav -->
+						<Border Grid.Row="1"
+								Grid.Column="0"
+								Background="{StaticResource PanelBackgroundBrush}"
+								BorderBrush="{StaticResource PanelBorderBrush}"
+								BorderThickness="0,1,1,0"
+								Padding="14">
+							<StackPanel Spacing="10">
+								<TextBlock Text="LP Automation"
+										   FontSize="20"
+										   FontWeight="SemiBold"
+										   Foreground="{StaticResource TextPrimaryBrush}" />
 
-						<TextBlock Grid.Row="1"
-								   Grid.ColumnSpan="3"
-								   Margin="0,8,0,0"
-								   Text="{Binding LastUpdatedUtc, StringFormat='Last Updated (UTC): {0}'}"
-								   Foreground="{StaticResource TextMutedBrush}"
-								   FontSize="12" />
+								<TextBlock Text="{Binding Subtitle}"
+										   Foreground="{StaticResource TextMutedBrush}"
+										   Margin="0,0,0,14"/>
+
+								<ItemsControl ItemsSource="{Binding NavItems}">
+									<ItemsControl.ItemTemplate>
+										<DataTemplate>
+											<Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+													CommandParameter="{Binding}"
+													HorizontalAlignment="Stretch"
+													Margin="0,4,0,0"
+													Padding="12,10">
+												<TextBlock Text="{Binding Title}" />
+											</Button>
+										</DataTemplate>
+									</ItemsControl.ItemTemplate>
+								</ItemsControl>
+							</StackPanel>
+						</Border>
+
+						<!-- Main content -->
+						<Border Grid.Row="1"
+								Grid.Column="1"
+								BorderBrush="{StaticResource PanelBorderBrush}"
+								BorderThickness="0,1,0,0"
+								Padding="22"
+								MinHeight="0">
+							<Grid RowDefinitions="Auto,*"
+								  RowSpacing="14"
+								  MinHeight="0">
+
+								<TextBlock Grid.Row="0"
+									   Text="{Binding CurrentPageTitle}"
+									   FontSize="30"
+									   FontWeight="SemiBold"
+									   Foreground="{StaticResource TextPrimaryBrush}" />
+
+								<!-- Phase 2.0: dynamic page host (replaces static JSON panel) -->
+								<Border Grid.Row="1"
+										Background="{StaticResource JsonPanelBrush}"
+										BorderBrush="{StaticResource JsonBorderBrush}"
+										BorderThickness="1"
+										CornerRadius="10"
+										Padding="12"
+										MinHeight="0">
+									<ContentControl Content="{Binding CurrentPage}" />
+								</Border>
+
+							</Grid>
+						</Border>
+
 					</Grid>
-				</Border>
+				</Window>
 
 				<!-- Phase 2.0: dynamic page host (replaces static JSON panel) -->
-				<Border Background="{StaticResource JsonPanelBrush}"
+				<Border Grid.Row="1"
+						Background="{StaticResource JsonPanelBrush}"
 						BorderBrush="{StaticResource JsonBorderBrush}"
 						BorderThickness="1"
 						CornerRadius="10"
-						Padding="12">
+						Padding="12"
+						MinHeight="0">
 					<ContentControl Content="{Binding CurrentPage}" />
 				</Border>
 
-			</StackPanel>
+			</Grid>
 		</Border>
 
 	</Grid>

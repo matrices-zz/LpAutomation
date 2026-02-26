@@ -1,0 +1,11 @@
+﻿using Avalonia.Controls;
+
+namespace LpAutomation.Desktop.Avalonia.Views;
+
+public partial class SettingsPageView : UserControl
+{
+    public SettingsPageView()
+    {
+        InitializeComponent();
+    }
+}

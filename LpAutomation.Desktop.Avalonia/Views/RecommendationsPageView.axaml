@@ -1,80 +1,159 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="LpAutomation.Desktop.Avalonia.Views.RecommendationsPageView"
+             x:Name="Root"
              HorizontalAlignment="Stretch"
              VerticalAlignment="Stretch">
 
-	<Grid RowDefinitions="Auto,Auto,*" RowSpacing="10"
+	<Grid RowDefinitions="Auto,Auto,*"
+		  RowSpacing="10"
 		  HorizontalAlignment="Stretch"
-		  VerticalAlignment="Stretch">
+		  VerticalAlignment="Stretch"
+		  MinHeight="0"
+		  ClipToBounds="True">
 
+		<!-- Discover controls -->
 		<Border Grid.Row="0"
 				Background="{StaticResource PanelBackgroundBrush}"
 				BorderBrush="{StaticResource PanelBorderBrush}"
 				BorderThickness="1"
 				CornerRadius="8"
 				Padding="10">
-			<Grid ColumnDefinitions="Auto,220,170,170,*,Auto" ColumnSpacing="8">
-				<Button Grid.Column="0"
-						Content="Refresh"
-						Command="{Binding RefreshCommand}" />
+			<Grid RowDefinitions="Auto,Auto" RowSpacing="8">
+				<Grid ColumnDefinitions="Auto,280,180,180,170,170,*,Auto" ColumnSpacing="8">
+					<Button Grid.Column="0"
+							Content="Refresh"
+							Command="{Binding RefreshCommand}" />
 
-				<TextBox Grid.Column="1"
-						 Watermark="Search opportunities..."
-						 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+					<TextBox Grid.Column="1"
+							 Watermark="Search pools, token, address..."
+							 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
 
-				<ComboBox Grid.Column="2"
-						  ItemsSource="{Binding RegimeOptions}"
-						  SelectedItem="{Binding SelectedRegime}" />
 
-				<ComboBox Grid.Column="3"
-						  ItemsSource="{Binding SortOptions}"
-						  SelectedItem="{Binding SelectedSort}" />
+					<ComboBox Grid.Column="2"
+							  ItemsSource="{Binding DexOptions}"
+							  SelectedItem="{Binding SelectedDex}" />
 
-				<TextBlock Grid.Column="4"
-						   VerticalAlignment="Center"
-						   Text="{Binding Status}" />
+					<ComboBox Grid.Column="3"
+							  ItemsSource="{Binding ChainOptions}"
+							  SelectedItem="{Binding SelectedChain}" />
 
-				<TextBlock Grid.Column="5"
-						   VerticalAlignment="Center"
-						   Text="{Binding CountLabel}" />
+					<ComboBox Grid.Column="4"
+							  ItemsSource="{Binding RegimeOptions}"
+							  SelectedItem="{Binding SelectedRegime}" />
+
+					<ComboBox Grid.Column="5"
+							  ItemsSource="{Binding TimeframeOptions}"
+							  SelectedItem="{Binding SelectedTimeframe}" />
+
+					<TextBlock Grid.Column="6"
+							   VerticalAlignment="Center"
+							   Text="{Binding Status}" />
+
+					<Button Grid.Column="7"
+							Content="Reset"
+							Command="{Binding ResetFiltersCommand}" />
+				</Grid>
+
+				<Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+					<TextBlock Grid.Column="0"
+							   VerticalAlignment="Center"
+							   Text="{Binding CountLabel}" />
+
+					<ComboBox Grid.Column="1"
+							  Width="190"
+							  ItemsSource="{Binding SortOptions}"
+							  SelectedItem="{Binding SelectedSort}" />
+				</Grid>
 			</Grid>
 		</Border>
 
-		<Border Grid.Row="1" Background="#20242C" BorderBrush="#323848" BorderThickness="1" CornerRadius="8" Padding="10">
-			<Grid ColumnDefinitions="220,120,120,120,*" ColumnSpacing="10">
-				<TextBlock Text="Pool" FontWeight="SemiBold"/>
-				<TextBlock Grid.Column="1" Text="Regime" FontWeight="SemiBold"/>
-				<TextBlock Grid.Column="2" Text="Reinvest" FontWeight="SemiBold"/>
-				<TextBlock Grid.Column="3" Text="Reallocate" FontWeight="SemiBold"/>
-				<TextBlock Grid.Column="4" Text="Summary" FontWeight="SemiBold"/>
-			</Grid>
+		<Border Grid.Row="1"
+				Background="#20242C"
+				BorderBrush="#323848"
+				BorderThickness="1"
+				CornerRadius="8"
+				Padding="10">
+			<TextBlock Text="Discover opportunities across DEXs/chains and send winning pools to Simulate."
+					   Foreground="{StaticResource TextMutedBrush}" />
 		</Border>
 
-		<ScrollViewer Grid.Row="2"
-					  VerticalScrollBarVisibility="Auto"
-					  HorizontalScrollBarVisibility="Auto">
-			<ItemsControl ItemsSource="{Binding FilteredRows}">
-				<ItemsControl.ItemTemplate>
-					<DataTemplate>
-						<Border Margin="0,0,0,4"
-								Padding="10"
-								CornerRadius="8"
-								Background="{StaticResource KpiCardBrush}"
-								BorderBrush="{StaticResource KpiBorderBrush}"
-								BorderThickness="1">
-							<Grid ColumnDefinitions="220,120,120,120,*" ColumnSpacing="10">
-								<TextBlock Text="{Binding Pool}" />
-								<TextBlock Grid.Column="1" Text="{Binding RegimeLabel}" />
-								<TextBlock Grid.Column="2" Text="{Binding Reinvest}" />
-								<TextBlock Grid.Column="3" Text="{Binding Reallocate}" />
-								<TextBlock Grid.Column="4" Text="{Binding Summary}" TextWrapping="Wrap" />
-							</Grid>
-						</Border>
-					</DataTemplate>
-				</ItemsControl.ItemTemplate>
-			</ItemsControl>
-		</ScrollViewer>
+		<Border Grid.Row="2"
+				Background="#20242C"
+				BorderBrush="#323848"
+				BorderThickness="1"
+				CornerRadius="8"
+				Padding="10"
+				MinHeight="0"
+				ClipToBounds="True">
 
+			<Grid MinHeight="0" RowDefinitions="*">
+				<DataGrid Grid.Row="0"
+						  ItemsSource="{Binding FilteredRows}"
+						  IsReadOnly="True"
+						  AutoGenerateColumns="False"
+						  CanUserResizeColumns="True"
+						  CanUserSortColumns="True"
+						  HeadersVisibility="Column"
+						  GridLinesVisibility="None"
+						  HorizontalAlignment="Stretch"
+						  VerticalAlignment="Stretch"
+						  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+						  ScrollViewer.VerticalScrollBarVisibility="Visible"
+						  ScrollViewer.AllowAutoHide="False"
+						  MinHeight="0"
+						  RowHeight="36"
+						  BorderThickness="0"
+						  Background="Transparent">
+
+					<DataGrid.Styles>
+						<Style Selector="DataGridColumnHeader">
+							<Setter Property="FontWeight" Value="SemiBold" />
+						</Style>
+						<Style Selector="DataGrid ScrollBar:vertical">
+							<Setter Property="IsVisible" Value="True" />
+							<Setter Property="Width" Value="14" />
+							<Setter Property="Opacity" Value="1" />
+							<Setter Property="Background" Value="#202938" />
+						</Style>
+						<Style Selector="DataGrid ScrollBar:horizontal">
+							<Setter Property="Height" Value="14" />
+							<Setter Property="Opacity" Value="1" />
+							<Setter Property="Background" Value="#202938" />
+						</Style>
+						<Style Selector="DataGrid ScrollBar /template/ Thumb">
+							<Setter Property="Background" Value="#A8C0E8" />
+							<Setter Property="MinHeight" Value="28" />
+							<Setter Property="MinWidth" Value="28" />
+							<Setter Property="CornerRadius" Value="7" />
+							<Setter Property="Opacity" Value="1" />
+						</Style>
+					</DataGrid.Styles>
+
+					<DataGrid.Columns>
+						<DataGridTextColumn Header="Pool" Width="1.2*" MinWidth="170" Binding="{Binding Pool}" />
+						<DataGridTextColumn Header="DEX" Width="Auto" MinWidth="120" Binding="{Binding Dex}" />
+						<DataGridTextColumn Header="Chain" Width="Auto" MinWidth="110" Binding="{Binding ChainLabel}" />
+						<DataGridTextColumn Header="Fee" Width="Auto" MinWidth="85" Binding="{Binding FeeLabel}" />
+						<DataGridTextColumn Header="Regime" Width="Auto" MinWidth="105" Binding="{Binding RegimeLabel}" />
+						<DataGridTextColumn Header="Reinvest" Width="Auto" MinWidth="90" Binding="{Binding Reinvest}" />
+						<DataGridTextColumn Header="Reallocate" Width="Auto" MinWidth="95" Binding="{Binding Reallocate}" />
+						<DataGridTextColumn Header="Summary" Width="2*" MinWidth="300" Binding="{Binding Summary}" />
+						<DataGridTextColumn Header="Updated" Width="Auto" MinWidth="150" Binding="{Binding UpdatedLabel}" />
+
+						<DataGridTemplateColumn Header="Action" Width="Auto" MinWidth="110">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate>
+									<Button Content="Simulate"
+											Padding="10,4"
+											Command="{Binding DataContext.SimulatePoolCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+											CommandParameter="{Binding PoolAddress}" />
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+				</DataGrid>
+			</Grid>
+		</Border>
 	</Grid>
 </UserControl>

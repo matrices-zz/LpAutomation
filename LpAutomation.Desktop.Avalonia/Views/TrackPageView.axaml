@@ -1,6 +1,7 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="LpAutomation.Desktop.Avalonia.Views.TrackPageView"
+             x:Name="Root"
              HorizontalAlignment="Stretch"
              VerticalAlignment="Stretch">
 
@@ -18,7 +19,7 @@
 				BorderThickness="1"
 				CornerRadius="8"
 				Padding="10">
-			<Grid ColumnDefinitions="Auto,260,Auto,*"
+			<Grid ColumnDefinitions="Auto,220,120,110,Auto,*"
 				  ColumnSpacing="8"
 				  HorizontalAlignment="Stretch">
 				<Button Grid.Column="0"
@@ -30,15 +31,29 @@
 						 Watermark="OwnerTag filter..."
 						 HorizontalAlignment="Stretch" />
 
-				<TextBlock Grid.Column="2"
+				<TextBox Grid.Column="2"
+						 Text="{Binding ChainFilterText}"
+						 Watermark="Chain"
+						 HorizontalAlignment="Stretch" />
+
+				<TextBox Grid.Column="3"
+						 Text="{Binding RefreshIntervalSeconds}"
+						 Watermark="Secs"
+						 HorizontalAlignment="Stretch" />
+
+				<Button Grid.Column="4"
+						Content="{Binding AutoRefreshButtonLabel}"
+						Command="{Binding ToggleAutoRefreshCommand}" />
+
+				<TextBlock Grid.Column="5"
 						   Margin="10,0,0,0"
 						   VerticalAlignment="Center"
-						   Text="{Binding Status}" />
+						   Text="{Binding StatusMessage}" />
 			</Grid>
 		</Border>
 
 		<!-- KPI cards -->
-		<Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+		<Grid Grid.Row="1" ColumnDefinitions="*,*,*,*,*" ColumnSpacing="8">
 			<Border Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
 				<StackPanel>
 					<TextBlock Text="Active Pools" Foreground="{StaticResource TextMutedBrush}" />
@@ -55,21 +70,28 @@
 
 			<Border Grid.Column="2" Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
 				<StackPanel>
-					<TextBlock Text="Matched Pools" Foreground="{StaticResource TextMutedBrush}" />
-					<TextBlock Text="{Binding MatchedPoolsCount}" FontSize="22" FontWeight="SemiBold" />
+					<TextBlock Text="In-Range %" Foreground="{StaticResource TextMutedBrush}" />
+					<TextBlock Text="{Binding InRangePct, StringFormat={}{0:0.0}}" FontSize="22" FontWeight="SemiBold" />
 				</StackPanel>
 			</Border>
 
 			<Border Grid.Column="3" Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
 				<StackPanel>
-					<TextBlock Text="Last Updated (UTC)" Foreground="{StaticResource TextMutedBrush}" />
-					<TextBlock Text="{Binding LastUpdatedUtc}" />
+					<TextBlock Text="Exposure USD" Foreground="{StaticResource TextMutedBrush}" />
+					<TextBlock Text="{Binding EstimatedNetExposureUsd, StringFormat={}{0:N0}}" FontSize="22" FontWeight="SemiBold" />
+				</StackPanel>
+			</Border>
+
+			<Border Grid.Column="4" Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+				<StackPanel>
+					<TextBlock Text="Warnings / Updated" Foreground="{StaticResource TextMutedBrush}" />
+					<TextBlock Text="{Binding WarningCount}" FontSize="22" FontWeight="SemiBold" />
+					<TextBlock Text="{Binding LastUpdatedUtc}" FontSize="11" />
 				</StackPanel>
 			</Border>
 		</Grid>
 
-		<!-- Results pane only -->
-		<Border Grid.Row="2"
+		<Border x:Name="ResultsPane" Grid.Row="2"
 				Background="#20242C"
 				BorderBrush="#323848"
 				BorderThickness="1"
@@ -77,57 +99,101 @@
 				Padding="10"
 				MinHeight="0"
 				ClipToBounds="True">
-			<ScrollViewer MinHeight="0"
-						  HorizontalAlignment="Stretch"
-						  VerticalAlignment="Stretch"
-						  VerticalScrollBarVisibility="Auto"
-						  HorizontalScrollBarVisibility="Auto">
 
-				<StackPanel Spacing="6">
-					<!-- Header aligned to row template -->
-					<Grid MinWidth="1360"
-						  ColumnDefinitions="180,340,80,120,110,120,120,140,150"
-						  ColumnSpacing="8">
-						<TextBlock Grid.Column="0" Text="Pair" FontWeight="SemiBold" />
-						<TextBlock Grid.Column="1" Text="Pool" FontWeight="SemiBold" />
-						<TextBlock Grid.Column="2" Text="Fee" FontWeight="SemiBold" />
-						<TextBlock Grid.Column="3" Text="Regime" FontWeight="SemiBold" />
-						<TextBlock Grid.Column="4" Text="Reinvest" FontWeight="SemiBold" />
-						<TextBlock Grid.Column="5" Text="Reallocate" FontWeight="SemiBold" />
-						<TextBlock Grid.Column="6" Text="Status" FontWeight="SemiBold" />
-						<TextBlock Grid.Column="7" Text="Owner" FontWeight="SemiBold" />
-						<TextBlock Grid.Column="8" Text="Updated" FontWeight="SemiBold" />
-					</Grid>
+			<!-- Keep DataGrid constrained to this pane so scrollbars compute real extents -->
+			<Grid x:Name="ResultsViewport" MinHeight="0" RowDefinitions="*">
 
-					<ItemsControl ItemsSource="{Binding Rows}">
-						<ItemsControl.ItemTemplate>
+			<DataGrid Grid.Row="0" ItemsSource="{Binding Rows}"
+					  IsReadOnly="True"
+					  AutoGenerateColumns="False"
+					  CanUserResizeColumns="True"
+					  CanUserSortColumns="False"
+					  HeadersVisibility="Column"
+					  GridLinesVisibility="None"
+					  HorizontalAlignment="Stretch"
+					  VerticalAlignment="Stretch"
+					  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+					  ScrollViewer.VerticalScrollBarVisibility="Visible"
+					  ScrollViewer.AllowAutoHide="False"
+					  ScrollViewer.IsScrollChainingEnabled="False"
+					  MinHeight="0"
+					  RowHeight="36"
+					  BorderThickness="0"
+					  Background="Transparent">
+
+				<DataGrid.Styles>
+					<Style Selector="DataGridColumnHeader">
+						<Setter Property="FontWeight" Value="SemiBold" />
+					</Style>
+					<Style Selector="DataGrid ScrollBar:vertical">
+						<Setter Property="IsVisible" Value="True" />
+						<Setter Property="Width" Value="14" />
+						<Setter Property="Opacity" Value="1" />
+						<Setter Property="Background" Value="#202938" />
+					</Style>
+					<Style Selector="DataGrid /template/ ScrollBar:vertical">
+						<Setter Property="IsVisible" Value="True" />
+						<Setter Property="Width" Value="14" />
+						<Setter Property="Opacity" Value="1" />
+					</Style>
+					<Style Selector="DataGrid ScrollBar:vertical:disabled">
+						<Setter Property="IsVisible" Value="True" />
+						<Setter Property="Opacity" Value="1" />
+						<Setter Property="Background" Value="#253043" />
+					</Style>
+					<Style Selector="DataGrid ScrollBar:horizontal">
+						<Setter Property="Height" Value="14" />
+						<Setter Property="Opacity" Value="1" />
+						<Setter Property="Background" Value="#202938" />
+					</Style>
+					<Style Selector="DataGrid ScrollBar /template/ Thumb">
+						<Setter Property="Background" Value="#A8C0E8" />
+						<Setter Property="MinHeight" Value="28" />
+						<Setter Property="MinWidth" Value="28" />
+						<Setter Property="CornerRadius" Value="7" />
+						<Setter Property="Opacity" Value="1" />
+					</Style>
+					<Style Selector="DataGrid ScrollBar:vertical:disabled /template/ Thumb">
+						<Setter Property="Background" Value="#637792" />
+						<Setter Property="MinHeight" Value="28" />
+						<Setter Property="CornerRadius" Value="7" />
+						<Setter Property="Opacity" Value="1" />
+					</Style>
+				</DataGrid.Styles>
+
+				<DataGrid.Columns>
+					<DataGridTextColumn Header="Pair" Width="1*" MinWidth="130" Binding="{Binding Pair}" />
+
+					<DataGridTemplateColumn Header="Pool" Width="1*" MinWidth="145">
+						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate>
-								<Border Margin="0,0,0,4"
-										Padding="10"
-										CornerRadius="8"
-										MinWidth="1360"
-										Background="{StaticResource KpiCardBrush}"
-										BorderBrush="{StaticResource KpiBorderBrush}"
-										BorderThickness="1">
-									<Grid ColumnDefinitions="180,340,80,120,110,120,120,140,150"
-										  ColumnSpacing="8">
-										<TextBlock Grid.Column="0" Text="{Binding Pair}" TextTrimming="CharacterEllipsis" />
-										<TextBlock Grid.Column="1" Text="{Binding PoolAddress}" FontFamily="Consolas" TextTrimming="CharacterEllipsis" />
-										<TextBlock Grid.Column="2" Text="{Binding FeeTier}" />
-										<TextBlock Grid.Column="3" Text="{Binding Regime}" TextTrimming="CharacterEllipsis" />
-										<TextBlock Grid.Column="4" Text="{Binding Reinvest}" />
-										<TextBlock Grid.Column="5" Text="{Binding Reallocate}" />
-										<TextBlock Grid.Column="6" Text="{Binding Status}" TextTrimming="CharacterEllipsis" />
-										<TextBlock Grid.Column="7" Text="{Binding OwnerTag}" TextTrimming="CharacterEllipsis" />
-										<TextBlock Grid.Column="8" Text="{Binding UpdatedUtc}" />
-									</Grid>
-								</Border>
+								<Button Background="Transparent"
+										BorderThickness="0"
+										Padding="0"
+										HorizontalAlignment="Left"
+										Command="{Binding DataContext.OpenRecommendationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+										CommandParameter="{Binding PoolAddress}"
+										ToolTip.Tip="{Binding PoolAddress}">
+									<TextBlock Text="{Binding PoolAddressShort}"
+											   FontFamily="Consolas"
+											   TextTrimming="CharacterEllipsis" />
+								</Button>
 							</DataTemplate>
-						</ItemsControl.ItemTemplate>
-					</ItemsControl>
-				</StackPanel>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
 
-			</ScrollViewer>
+					<DataGridTextColumn Header="Fee" Width="Auto" MinWidth="70" Binding="{Binding FeeTier}" />
+					<DataGridTextColumn Header="Regime" Width="Auto" MinWidth="105" Binding="{Binding Regime}" />
+					<DataGridTextColumn Header="Action" Width="Auto" MinWidth="115" Binding="{Binding RecommendationAction}" />
+					<DataGridTextColumn Header="Paper Position" Width="1.4*" MinWidth="200" Binding="{Binding PaperPositionId}" />
+					<DataGridTextColumn Header="Liq USD" Width="Auto" MinWidth="115" Binding="{Binding LiquidityUsd, StringFormat={}{0:N0}}" />
+					<DataGridTextColumn Header="Exposure %" Width="Auto" MinWidth="105" Binding="{Binding EstimatedExposurePct, StringFormat={}{0:0.0}}" />
+					<DataGridTextColumn Header="Status" Width="Auto" MinWidth="95" Binding="{Binding Status}" />
+					<DataGridTextColumn Header="Diagnostics" Width="2.2*" MinWidth="320" Binding="{Binding Diagnostics}" />
+					<DataGridTextColumn Header="Updated" Width="Auto" MinWidth="165" Binding="{Binding UpdatedUtc}" />
+				</DataGrid.Columns>
+			</DataGrid>
+			</Grid>
 		</Border>
 
 	</Grid>

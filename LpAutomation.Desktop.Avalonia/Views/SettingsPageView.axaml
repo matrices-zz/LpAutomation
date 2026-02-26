@@ -1,0 +1,93 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="LpAutomation.Desktop.Avalonia.Views.SettingsPageView"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch">
+
+	<Grid RowDefinitions="Auto,Auto,*"
+		  RowSpacing="10"
+		  HorizontalAlignment="Stretch"
+		  VerticalAlignment="Stretch"
+		  MinHeight="0">
+
+		<Border Grid.Row="0"
+				Background="{StaticResource PanelBackgroundBrush}"
+				BorderBrush="{StaticResource PanelBorderBrush}"
+				BorderThickness="1"
+				CornerRadius="8"
+				Padding="12">
+			<Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+				<StackPanel>
+					<TextBlock Text="Connection &amp; API Monitoring"
+							   FontSize="20"
+							   FontWeight="SemiBold" />
+					<TextBlock Text="All shell-level diagnostics were moved here from the global page chrome."
+							   Foreground="{StaticResource TextMutedBrush}" />
+				</StackPanel>
+
+				<Button Grid.Column="1"
+						Content="{Binding DataContext.TestApiButtonText, RelativeSource={RelativeSource AncestorType=Window}}"
+						Command="{Binding DataContext.TestApiCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+						Padding="16,9"
+						FontWeight="SemiBold"
+						VerticalAlignment="Center"/>
+			</Grid>
+		</Border>
+
+		<Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+			<Border Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+				<StackPanel>
+					<TextBlock Text="Calls" Foreground="{StaticResource TextMutedBrush}" />
+					<TextBlock Text="{Binding DataContext.ApiCallCount, RelativeSource={RelativeSource AncestorType=Window}}" FontSize="24" FontWeight="SemiBold" />
+				</StackPanel>
+			</Border>
+			<Border Grid.Column="1" Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+				<StackPanel>
+					<TextBlock Text="Errors" Foreground="{StaticResource TextMutedBrush}" />
+					<TextBlock Text="{Binding DataContext.ApiErrorCount, RelativeSource={RelativeSource AncestorType=Window}}" FontSize="24" FontWeight="SemiBold" />
+				</StackPanel>
+			</Border>
+			<Border Grid.Column="2" Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+				<StackPanel>
+					<TextBlock Text="Payload" Foreground="{StaticResource TextMutedBrush}" />
+					<TextBlock Text="{Binding DataContext.LastPayloadChars, RelativeSource={RelativeSource AncestorType=Window}, StringFormat='{}{0} chars'}" FontSize="24" FontWeight="SemiBold" FontFamily="Consolas" />
+				</StackPanel>
+			</Border>
+			<Border Grid.Column="3" Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+				<StackPanel>
+					<TextBlock Text="Latency" Foreground="{StaticResource TextMutedBrush}" />
+					<TextBlock Text="{Binding DataContext.LastElapsedMs, RelativeSource={RelativeSource AncestorType=Window}, StringFormat='{}{0:F0} ms'}" FontSize="24" FontWeight="SemiBold" FontFamily="Consolas" />
+				</StackPanel>
+			</Border>
+		</Grid>
+
+		<Border Grid.Row="2"
+				Background="{StaticResource JsonPanelBrush}"
+				BorderBrush="{StaticResource JsonBorderBrush}"
+				BorderThickness="1"
+				CornerRadius="10"
+				Padding="12"
+				MinHeight="0">
+			<Grid RowDefinitions="Auto,Auto,*" RowSpacing="8" MinHeight="0">
+				<TextBlock Text="Status"
+						   FontWeight="SemiBold"
+						   FontSize="16" />
+
+				<StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10">
+					<TextBlock Text="{Binding DataContext.StatusMessage, RelativeSource={RelativeSource AncestorType=Window}}" />
+					<TextBlock Text="{Binding DataContext.LastUpdatedUtc, RelativeSource={RelativeSource AncestorType=Window}, StringFormat='(UTC: {0})'}"
+							   Foreground="{StaticResource TextMutedBrush}" />
+				</StackPanel>
+
+				<ScrollViewer Grid.Row="2"
+							  VerticalScrollBarVisibility="Auto"
+							  HorizontalScrollBarVisibility="Auto"
+							  MinHeight="0">
+					<TextBlock Text="{Binding DataContext.LastApiPreview, RelativeSource={RelativeSource AncestorType=Window}}"
+							   FontFamily="Consolas"
+							   TextWrapping="Wrap" />
+				</ScrollViewer>
+			</Grid>
+		</Border>
+	</Grid>
+</UserControl>

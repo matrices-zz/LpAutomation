@@ -16,6 +16,7 @@ public partial class ShellViewModel : ObservableObject
     private readonly TrackPageViewModel _trackPage;
     private readonly RecommendationsPageViewModel _recommendationsPage;
     private readonly PaperPositionsPageViewModel _paperPositionsPage;
+    private readonly SettingsPageViewModel _settingsPage;
 
     [ObservableProperty]
     private string _title = "LP Automation — Avalonia";
@@ -62,7 +63,7 @@ public partial class ShellViewModel : ObservableObject
 
     // Optional: bind top-right button text
     [ObservableProperty]
-    private string _testApiButtonText = "Test API";
+    private string _testApiButtonText = "Check Connection";
 
     public ObservableCollection<NavItem> NavItems { get; } = new();
 
@@ -72,7 +73,8 @@ public partial class ShellViewModel : ObservableObject
         IFileDialogService files,
         TrackPageViewModel trackPage,
         RecommendationsPageViewModel recommendationsPage,
-        PaperPositionsPageViewModel paperPositionsPage)
+        PaperPositionsPageViewModel paperPositionsPage,
+        SettingsPageViewModel settingsPage)
     {
         _configApi = configApi;
         _recsApi = recsApi;
@@ -80,13 +82,14 @@ public partial class ShellViewModel : ObservableObject
         _trackPage = trackPage;
         _recommendationsPage = recommendationsPage;
         _paperPositionsPage = paperPositionsPage;
+        _settingsPage = settingsPage;
 
         // Phase 1 navigation alignment (Track / Discover / Simulate)
         NavItems.Add(new NavItem("Track", "dashboard", () => _trackPage));
         NavItems.Add(new NavItem("Discover", "star", () => _recommendationsPage));
         NavItems.Add(new NavItem("Simulate", "briefcase", () => _paperPositionsPage));
         NavItems.Add(new NavItem("Config", "file", () => null));
-        NavItems.Add(new NavItem("Settings", "settings", () => null));
+        NavItems.Add(new NavItem("Settings", "settings", () => _settingsPage));
 
         // Default page
         var first = NavItems[1]; // Discover
@@ -146,7 +149,7 @@ public partial class ShellViewModel : ObservableObject
         finally
         {
             IsBusy = false;
-            TestApiButtonText = "Test API";
+            TestApiButtonText = "Check Connection";
         }
     }
 
