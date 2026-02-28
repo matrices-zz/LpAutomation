@@ -54,6 +54,52 @@
 					</StackPanel>
 				</Border>
 
+				<!-- ══════════════════════════════════════════════════════════ -->
+				<!-- NEW: Strategy Intent (Risk Mode + Profile)                -->
+				<!-- ══════════════════════════════════════════════════════════ -->
+				<Expander Header="Strategy Intent" IsExpanded="True">
+					<StackPanel Spacing="15" Margin="0,10">
+						<TextBlock TextWrapping="Wrap" Foreground="Gray" FontSize="12"
+						           Text="Risk Mode sets the engine's 'speed limit' — how aggressively it pursues fees vs. protecting capital. Strategy Profile sets the default liquidity shape the engine will use when no regime override applies."/>
+
+						<Grid ColumnDefinitions="*,20,*">
+							<!-- Risk Mode -->
+							<StackPanel Grid.Column="0" Spacing="6">
+								<TextBlock Text="Risk Mode" FontWeight="SemiBold"/>
+								<ComboBox ItemsSource="{Binding RiskModes}"
+								          SelectedItem="{Binding SelectedRiskMode}"
+								          HorizontalAlignment="Stretch"/>
+								<TextBlock FontSize="11" FontStyle="Italic" Opacity="0.6" TextWrapping="Wrap">
+									<TextBlock.Text>
+										Conservative = wide buffers, IL protection.
+										Balanced = standard risk/reward.
+										Aggressive = tight ranges, max fee capture.
+									</TextBlock.Text>
+								</TextBlock>
+							</StackPanel>
+
+							<!-- Strategy Profile -->
+							<StackPanel Grid.Column="2" Spacing="6">
+								<TextBlock Text="Default Strategy Profile" FontWeight="SemiBold"/>
+								<ComboBox ItemsSource="{Binding StrategyProfiles}"
+								          SelectedItem="{Binding SelectedStrategyProfile}"
+								          HorizontalAlignment="Stretch"/>
+								<TextBlock FontSize="11" FontStyle="Italic" Opacity="0.6" TextWrapping="Wrap">
+									<TextBlock.Text>
+										Baseline = general purpose.
+										TightFarming = narrow range, high volume.
+										ExitStrategy = capital preservation.
+										VolatilityBuffered = wide range, absorb chop.
+										GeometricMeanCore = mean reversion.
+										Laddered = multi-tier distribution.
+									</TextBlock.Text>
+								</TextBlock>
+							</StackPanel>
+						</Grid>
+					</StackPanel>
+				</Expander>
+				<!-- ══════════════════════════════════════════════════════════ -->
+
 				<!-- 2. Market Regime Detection -->
 				<Expander Header="Market Regime Detection (Math Thresholds)" IsExpanded="True">
 					<StackPanel Spacing="15" Margin="0,10">

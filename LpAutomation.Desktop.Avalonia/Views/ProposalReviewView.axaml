@@ -1,0 +1,61 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="LpAutomation.Desktop.Avalonia.Views.ProposalReviewView"
+        Title="Review Action Proposal" Width="450" Height="550"
+        WindowStartupLocation="CenterOwner"
+        Background="#1e1e1e" TransparencyLevelHint="AcrylicBlur"
+        ExtendClientAreaToDecorationsHint="True">
+
+    <Panel>
+		<ExperimentalAcrylicBorder IsHitTestVisible="False">
+			<ExperimentalAcrylicBorder.Material>
+				<ExperimentalAcrylicMaterial BackgroundSource="Digger" TintColor="Black" TintOpacity="0.6" MaterialOpacity="0.85"/>
+			</ExperimentalAcrylicBorder.Material>
+		</ExperimentalAcrylicBorder>
+
+        <StackPanel Margin="25" Spacing="15">
+            <TextBlock Text="Action Proposal" FontSize="20" FontWeight="Bold" Margin="0,20,0,10"/>
+            
+            <Border Background="#2d2d2d" CornerRadius="8" Padding="15">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Proposed Action:" FontWeight="Bold" Foreground="Gray" FontSize="12"/>
+                    <TextBlock Text="REBALANCE RANGE" FontSize="18" FontWeight="ExtraBold" Foreground="#00ffcc"/>
+                    
+                    <Separator Height="1" Opacity="0.2"/>
+                    
+                    <Grid ColumnDefinitions="*,Auto,*">
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Current Min" FontSize="10" Opacity="0.6"/>
+                            <TextBlock Text="2,450.00" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" Margin="10,0"/>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="New Min" FontSize="10" Opacity="0.6"/>
+                            <TextBlock Text="2,510.00" FontWeight="SemiBold" Foreground="#00ffcc"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Reasoning" FontWeight="Bold" FontSize="12" Foreground="Gray"/>
+            <TextBlock Text="Volatility spike detected in ETH/USDC. Moving to VolatilityBuffered profile to reduce IL risk while maintaining fee capture." 
+                       TextWrapping="Wrap" FontSize="13"/>
+
+            <!-- Replaced Spacer with a simple Margin/Padding as Spacer isn't a standard control -->
+            <Border Height="20" />
+
+            <StackPanel Spacing="10" VerticalAlignment="Bottom">
+                <Button Content="Sign &amp; Broadcast Transaction" 
+                        HorizontalAlignment="Stretch" 
+                        HorizontalContentAlignment="Center"
+                        Height="45" FontWeight="Bold"/>
+                
+                <Button Content="Cancel" 
+                        Name="CancelButton"
+                        HorizontalAlignment="Stretch" 
+                        HorizontalContentAlignment="Center"
+                        Background="Transparent" BorderThickness="1" BorderBrush="Gray"/>
+            </StackPanel>
+        </StackPanel>
+    </Panel>
+</Window>

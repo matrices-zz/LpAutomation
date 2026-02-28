@@ -204,7 +204,7 @@ public sealed class StrategyEngineHostedService : BackgroundService
                         superMacro ?? -1);
 
                     // ========= Regime detection + heat-aware hysteresis =========
-                    var detected = RegimeDetector.Detect(
+                    var detected = LpAutomation.Core.Strategy.RegimeDetector.Detect(
                         snap,
                         sidewaysVolMax: 0.06,
                         sidewaysR2Max: 0.35,
@@ -264,11 +264,11 @@ public sealed class StrategyEngineHostedService : BackgroundService
                         }
                     }
 
-                    var regime = state.Current;
+                    var finalRegime = state.Current;
 
                     // ========= Scoring + defensive policy =========
-                    var reinvest = Scoring.ScoreReinvest(snap, regime);
-                    var realloc = Scoring.ScoreReallocate(snap, regime);
+                    var reinvest = LpAutomation.Core.Strategy.Scoring.ScoreReinvest(snap, finalRegime);
+                    var realloc = LpAutomation.Core.Strategy.Scoring.ScoreReallocate(snap, finalRegime);
 
                     double reinvestAdj = reinvest;
                     double reallocAdj = realloc;
@@ -331,12 +331,12 @@ public sealed class StrategyEngineHostedService : BackgroundService
                         Token0: key.Token0 ?? "",
                         Token1: key.Token1 ?? "",
                         FeeTier: key.FeeTier,
-                        Regime: regime,
+                        Regime: finalRegime,
                         ReinvestScore: reinvestFinal,
                         ReallocateScore: reallocFinal,
-                        Summary: $"Regime={regime}, Heat={blendedHeat} (T={tactical},S={structural},M={macro},SM={superMacro}), Reinvest={reinvestAdj:F1}, Reallocate={reallocAdj:F1}",
+                        Summary: $"Regime={finalRegime}, Heat={blendedHeat} (...)",
                         DetailsJson: details
-                    );
+);
 
                     _recs.Add(rec);
                 }

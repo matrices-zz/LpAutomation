@@ -105,16 +105,16 @@ public sealed class SqliteConfigStore : IConfigStore
     public async Task<List<ConfigVersionEntity>> ListVersionsAsync(int take)
     {
         const string sql = @"
-SELECT
-  id,
-  config_id,
-  created_utc,
-  created_by,
-  config_json,
-  config_hash
-FROM strategy_config_versions
-ORDER BY id DESC
-LIMIT @Take;";
+            SELECT
+              id,
+              config_id,
+              created_utc,
+              created_by,
+              config_json,
+              config_hash
+            FROM strategy_config_versions
+            ORDER BY id DESC
+            LIMIT @Take;";
 
         await using var conn = CreateConnection();
         await conn.OpenAsync();
@@ -141,10 +141,10 @@ LIMIT @Take;";
     public async Task<StrategyConfigDocument?> GetVersionAsync(long id)
     {
         const string sql = @"
-SELECT config_json
-FROM strategy_config_versions
-WHERE id = @Id
-LIMIT 1;";
+            SELECT config_json
+            FROM strategy_config_versions
+            WHERE id = @Id
+            LIMIT 1;";
 
         await using var conn = CreateConnection();
         await conn.OpenAsync();

@@ -5,6 +5,46 @@ namespace LpAutomation.Core.Models;
 
 public enum RegimeType { SIDEWAYS, TRENDING, VOLATILE }
 
+public enum RiskMode
+{
+    Conservative, // High IL protection, wider buffers
+    Balanced,     // Standard risk/reward
+    Aggressive    // Tight ranges, high fee focus, frequent rebalancing
+}
+
+public enum StrategyProfile
+{
+    Baseline,           // Standard market-neutral
+    TightFarming,       // Narrow ranges for high volume
+    ExitStrategy,       // Capital preservation / Range exit
+    VolatilityBuffered, // Wide ranges to absorb chop
+    GeometricMeanCore,  // Targeting mid-market mean reversion
+    Laddered            // Multi-tier liquidity distribution
+}
+
+public record ActionProposal(
+    string ActionType,      // "Rebalance", "Reinvest", "Exit", "Hedge"
+    double CurrentRangeMin,
+    double CurrentRangeMax,
+    double NewRangeMin,
+    double NewRangeMax,
+    string Reason,          // e.g., "Volatility spike detected, moving to VolatilityBuffered"
+    double ExpectedImpactPct
+);
+
+public sealed class StrategyProfileSettings
+{
+    public StrategyProfile Profile { get; init; }
+    public string DisplayName { get; init; } = "";
+    public string Description { get; init; } = "";
+
+    // Profile-specific overrides for the math
+    public double? WidthPct { get; init; }
+    public double? WeightFeeApr { get; init; }
+    public double? WeightRiskVol { get; init; }
+    // ... other specific knobs for this strategy
+}
+
 public sealed record StrategyConfigDocument
 {
     public int SchemaVersion { get; init; } = 1;

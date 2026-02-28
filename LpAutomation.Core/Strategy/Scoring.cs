@@ -1,36 +1,72 @@
-﻿namespace LpAutomation.Core.Strategy;
+﻿using LpAutomation.Core.Models;
+
+namespace LpAutomation.Core.Strategy;
 
 public static class Scoring
 {
-    // very MVP scoring: tune later via config (we’ll wire that next)
-    public static int ScoreReinvest(PoolSnapshot s, MarketRegime regime)
+    /// <summary>
+    /// Composite score based on fee APR, volatility, trend strength, and risk mode.
+    /// Returns a value normalized to 0–100.
+    /// </summary>
+    public static double CalculateCompositeScore(
+    double volNorm,
+    double trendR2,
+    RiskMode risk)
     {
-        // Reward: lower vol, higher stability
-        // Penalize: trending + volatile
-        var baseScore = 70;
+        double volStabilityScore = 1.0 / (1.0 + volNorm);
 
-        if (regime == MarketRegime.Sideways) baseScore += 10;
-        if (regime == MarketRegime.Trending) baseScore -= 15;
-        if (regime == MarketRegime.Volatile) baseScore -= 25;
+        double volWeight = risk switch
+        {
+            RiskMode.Aggressive => 0.15,
+            RiskMode.Conservative => 0.50,
+            _ => 0.30
+        };
 
-        // VolNorm adjustment (assumes roughly 0..0.2 typical; clamp defensively)
-        var volPenalty = (int)Math.Round(200 * Math.Clamp(s.VolNorm, 0, 0.5)); // 0..100
-        var score = baseScore - volPenalty / 2;
+        double trendWeight = 1.0 - volWeight;
 
-        return Math.Clamp(score, 0, 100);
+        double raw = (volStabilityScore * volWeight) + (trendR2 * trendWeight);
+        return Math.Clamp(raw * 100.0, 0, 100);
     }
 
+    /// <summary>
+    /// Reinvest score: rewards stability (low vol, low trend, sideways regime).
+    /// </summary>
+    public static int ScoreReinvest(PoolSnapshot s, MarketRegime regime)
+    {
+        double composite = CalculateCompositeScore(
+            volNorm: s.VolNorm,
+            trendR2: s.TrendR2,
+            risk: RiskMode.Balanced);
+
+        composite += regime switch
+        {
+            MarketRegime.Sideways => +5,
+            MarketRegime.Trending => -10,
+            MarketRegime.Volatile => -20,
+            _ => 0
+        };
+
+        return Math.Clamp((int)Math.Round(composite), 0, 100);
+    }
+
+    /// <summary>
+    /// <summary>
+    /// Reallocate score: favored when risk is rising (trending or volatile).
+    /// </summary>
     public static int ScoreReallocate(PoolSnapshot s, MarketRegime regime)
     {
-        // Reallocate becomes attractive when trending/volatile risk rises
-        var score = 30;
+        double composite = CalculateCompositeScore(
+            volNorm: s.VolNorm,
+            trendR2: s.TrendR2,
+            risk: RiskMode.Conservative);
 
-        if (regime == MarketRegime.Trending) score += 25;
-        if (regime == MarketRegime.Volatile) score += 35;
+        composite += regime switch
+        {
+            MarketRegime.Trending => +15,
+            MarketRegime.Volatile => +30,
+            _ => 0
+        };
 
-        // Higher vol increases reallocate
-        score += (int)Math.Round(150 * Math.Clamp(s.VolNorm, 0, 0.5)); // 0..75
-
-        return Math.Clamp(score, 0, 100);
+        return Math.Clamp((int)Math.Round(composite), 0, 100);
     }
 }

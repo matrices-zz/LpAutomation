@@ -5,6 +5,14 @@ using LpAutomation.Core.Validation;
 
 namespace LpAutomation.Contracts.Config;
 
+
+public class GlobalStrategyConfigDto
+{
+    public RiskMode SelectedRiskMode { get; set; }
+    public StrategyProfile DefaultProfile { get; set; }
+    public bool AutoExecuteSmallReinvests { get; set; }
+    // ... include your existing weight properties here
+}
 public sealed record ConfigGetResponse(StrategyConfigDocument Config, string ConfigHash);
 public sealed record ConfigPutRequest(StrategyConfigDocument Config);
 public sealed record ConfigValidateResponse(bool IsValid, List<ValidationIssue> Issues, List<AutoCorrection> Corrections);

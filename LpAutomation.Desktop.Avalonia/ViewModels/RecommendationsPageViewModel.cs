@@ -1,13 +1,14 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using LpAutomation.Core.Models;
+using LpAutomation.Desktop.Avalonia.Services;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using LpAutomation.Desktop.Avalonia.Services;
 
 namespace LpAutomation.Desktop.Avalonia.ViewModels;
 
@@ -76,7 +77,7 @@ public partial class RecommendationsPageViewModel : ObservableObject
         Status = "Ready";
         CountLabel = "Showing 0 pools";
     }
-
+       
     public ObservableCollection<RecommendationRowVm> Rows { get; }
     public ObservableCollection<RecommendationRowVm> FilteredRows { get; }
 
@@ -107,6 +108,12 @@ public partial class RecommendationsPageViewModel : ObservableObject
     partial void OnSelectedPresetChanged(string value) => ApplyFilters();
 
     [RelayCommand]
+    private async Task ReviewProposal(RecommendationRowVm row)
+    {
+        // 1. Parse the ActionProposal from the Recommendation's DetailsJson
+        // 2. Open a Dialog (ProposalReviewView) passing the proposal
+        // 3. If user clicks "Sign & Broadcast", trigger the Desktop Wallet flow
+    }
     private async Task RefreshAsync(CancellationToken ct)
     {
         try

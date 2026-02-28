@@ -1,4 +1,6 @@
-﻿namespace LpAutomation.Core.Strategy;
+﻿using LpAutomation.Core.Models;
+
+namespace LpAutomation.Core.Strategy;
 
 public static class RegimeDetector
 {
@@ -11,7 +13,7 @@ public static class RegimeDetector
         double volatileVolMin,
         double volatileR2Max)
     {
-        // Volatile first
+        // Volatile
         if (s.VolNorm >= volatileVolMin && s.TrendR2 <= volatileR2Max)
             return MarketRegime.Volatile;
 
@@ -23,7 +25,9 @@ public static class RegimeDetector
         if (s.VolNorm <= sidewaysVolMax && s.TrendR2 <= sidewaysR2Max)
             return MarketRegime.Sideways;
 
-        // Fallback: pick the “closest” behavior; keep simple for MVP
-        return s.VolNorm >= volatileVolMin ? MarketRegime.Volatile : MarketRegime.Sideways;
+        // Fallback
+        return s.VolNorm >= volatileVolMin
+            ? MarketRegime.Volatile
+            : MarketRegime.Sideways;
     }
 }

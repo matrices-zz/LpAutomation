@@ -8,8 +8,42 @@ using System;
 using System.Data;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace LpAutomation.Desktop.Avalonia.ViewModels;
+
+public partial class SettingsPageViewModel : ObservableObject
+{
+    [ObservableProperty] private RiskMode _selectedRisk;
+    [ObservableProperty] private StrategyProfile _selectedDefaultProfile;
+    [ObservableProperty] private bool _isSaving;
+
+    // Enums for the ComboBoxes
+    public IEnumerable<RiskMode> RiskModes => (RiskMode[])Enum.GetValues(typeof(RiskMode));
+    public IEnumerable<StrategyProfile> StrategyProfiles => (StrategyProfile[])Enum.GetValues(typeof(StrategyProfile));
+
+    public SettingsPageViewModel()
+    {
+        // Default values (In a real app, you'd load these from your ConfigApiClient)
+        SelectedRisk = RiskMode.Balanced;
+        SelectedDefaultProfile = StrategyProfile.Baseline;
+    }
+
+    [RelayCommand]
+    private async Task SaveSettings()
+    {
+        IsSaving = true;
+        try
+        {
+            // TODO: Call your ConfigApiClient.UpdateConfig(dto) here
+            await Task.Delay(1000); // Simulate network call
+        }
+        finally
+        {
+            IsSaving = false;
+        }
+    }
+}
 
 public partial class SettingsPageViewModel : ObservableObject
 {
@@ -93,8 +127,11 @@ public partial class SettingsPageViewModel : ObservableObject
     [ObservableProperty] private double _hedgeSuggestVolSpikeMax = 0.25;
 
     // ─────────────────────────────────────────────────────────
-    public SettingsPageViewModel() : this(null!) { }
 
+    // ── Strategy Intent ───────────────────────────────────────
+    [ObservableProperty] private RiskMode _selectedRiskMode = RiskMode.Balanced;
+    [ObservableProperty] private StrategyProfile _selectedStrategyProfile = StrategyProfile.Baseline;
+        
     public SettingsPageViewModel(ConfigApiClient api)
     {
         _api = api;
