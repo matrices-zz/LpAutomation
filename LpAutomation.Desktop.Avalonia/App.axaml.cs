@@ -48,7 +48,7 @@ public partial class App : Application
                 services.Get<PaperPositionsApiClient>()));
 
         services.AddTransient<SettingsPageViewModel>(() =>
-            new SettingsPageViewModel());
+    new SettingsPageViewModel(services.Get<ConfigApiClient>()));
 
         // Shell VM (Phase 2.1 constructor signature)
         services.AddTransient<ShellViewModel>(() =>
@@ -60,6 +60,7 @@ public partial class App : Application
                 services.Get<RecommendationsPageViewModel>(),
                 services.Get<PaperPositionsPageViewModel>(),
                 services.Get<SettingsPageViewModel>()));
+                
 
         Services = services;
 

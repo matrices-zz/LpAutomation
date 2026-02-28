@@ -88,8 +88,8 @@ public partial class ShellViewModel : ObservableObject
         NavItems.Add(new NavItem("Track", "dashboard", () => _trackPage));
         NavItems.Add(new NavItem("Discover", "star", () => _recommendationsPage));
         NavItems.Add(new NavItem("Simulate", "briefcase", () => _paperPositionsPage));
-        NavItems.Add(new NavItem("Config", "file", () => null));
         NavItems.Add(new NavItem("Settings", "settings", () => _settingsPage));
+
 
         // Default page
         var first = NavItems[1]; // Discover

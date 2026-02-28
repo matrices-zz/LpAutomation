@@ -7,9 +7,37 @@ using LpAutomation.Server.Storage;
 using LpAutomation.Server.PaperPositions;
 using System.IO;
 
+// 1. FORCE CONSOLE OUTPUT IMMEDIATELY
+Console.WriteLine("***************************************************");
+Console.WriteLine("SERVER STARTING...");
+Console.WriteLine("***************************************************");
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Controllers
+// 2. SETUP PERSISTENT PATH
+// We'll use a folder directly on C: or User profile to ensure it NEVER gets wiped by VS
+string dataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LpAutomationData");
+
+try
+{
+    if (!Directory.Exists(dataDir)) Directory.CreateDirectory(dataDir);
+    Console.WriteLine($"[SUCCESS] Data Directory: {dataDir}");
+}
+catch (Exception ex)
+{
+    // If LocalAppData fails, fallback to a very safe temp folder
+    dataDir = Path.Combine(Path.GetTempPath(), "LpAutomation_Fallback");
+    Directory.CreateDirectory(dataDir);
+    Console.WriteLine($"[FALLBACK] Using Temp Path: {dataDir}");
+}
+
+string dbPath = Path.Combine(dataDir, "lpautomation.db");
+Console.WriteLine($"[DATABASE] Path: {dbPath}");
+
+// 3. INITIALIZE DB
+await SqliteDbInitializer.InitializeAsync(dbPath);
+
+// 4. SERVICES
 builder.Services.AddControllers();
 builder.Services.AddSingleton<ITokenRegistry, InMemoryTokenRegistry>();
 builder.Services.AddHttpClient<IOnChainPoolFactoryClient, JsonRpcUniswapV3FactoryClient>();
@@ -17,30 +45,15 @@ builder.Services.AddSingleton<IPoolAddressResolver, UniswapV3PoolAddressResolver
 builder.Services.AddMemoryCache();
 builder.Services.Configure<RpcProviderOptions>(builder.Configuration);
 
-// OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "LpAutomation API",
-        Version = "v1"
-    });
+builder.Services.AddSwaggerGen(c => {
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "LpAutomation API", Version = "v1" });
 });
 
-// SQLite
-var baseDir = builder.Environment.IsDevelopment()
-    ? builder.Environment.ContentRootPath
-    : AppContext.BaseDirectory;
-
-var dbPath = Path.Combine(baseDir, "lpautomation.db");
-await SqliteDbInitializer.InitializeAsync(dbPath);
-
+// Register Repos with the PERSISTENT path
 builder.Services.AddSingleton(new SnapshotRepository(dbPath));
 builder.Services.AddSingleton(new ActivePoolRepository(dbPath));
 builder.Services.AddSingleton<IConfigStore>(new SqliteConfigStore(dbPath));
-
-// Paper positions: SQLite-backed
 builder.Services.AddSingleton<IPaperPositionStore>(new SqlitePaperPositionStore(dbPath));
 
 builder.Services.AddSingleton<IRecommendationStore, InMemoryRecommendationStore>();
@@ -55,19 +68,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
+app.UseSwaggerUI(c => {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "LpAutomation API v1");
     c.RoutePrefix = "swagger";
-    c.EnableTryItOutByDefault();
-});
-
-app.UseReDoc(c =>
-{
-    c.RoutePrefix = "redoc";
-    c.SpecUrl("/swagger/v1/swagger.json");
-    c.DocumentTitle = "LpAutomation API Docs";
 });
 
 app.MapControllers();
+
+Console.WriteLine("***************************************************");
+Console.WriteLine("SERVER IS LIVE AND READY");
+Console.WriteLine("***************************************************");
+
 await app.RunAsync();

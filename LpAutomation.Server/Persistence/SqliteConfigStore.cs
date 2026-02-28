@@ -24,18 +24,21 @@ public sealed class SqliteConfigStore : IConfigStore
             Mode = SqliteOpenMode.ReadWriteCreate,
             Cache = SqliteCacheMode.Shared
         }.ToString();
+        Console.WriteLine($"[INIT] SqliteConfigStore using: {dbPath}");
+        Console.WriteLine($"[CONFIG STORE] Using DB: {dbPath}");
     }
 
     private SqliteConnection CreateConnection() => new(_connectionString);
 
     public async Task<StrategyConfigDocument> GetCurrentAsync()
     {
+        Console.WriteLine($"[LOAD] Fetching from: {_connectionString}");
         const string sql = @"
-SELECT v.config_json
-FROM strategy_config_current c
-JOIN strategy_config_versions v ON v.id = c.version_id
-WHERE c.singleton_id = 1
-LIMIT 1;";
+            SELECT v.config_json
+            FROM strategy_config_current c
+            LEFT JOIN strategy_config_versions v ON v.id = c.version_id
+            WHERE c.singleton_id = 1
+            LIMIT 1;";
 
         await using var conn = CreateConnection();
         await conn.OpenAsync();
@@ -51,6 +54,7 @@ LIMIT 1;";
 
     public async Task<StrategyConfigDocument> SaveNewVersionAsync(StrategyConfigDocument doc, string actor)
     {
+        Console.WriteLine($"[SAVE] Writing to: {_connectionString}");
         var now = DateTimeOffset.UtcNow;
         var json = JsonSerializer.Serialize(doc, JsonOptions);
         var hash = ComputeSha256Hex(json);
@@ -60,15 +64,16 @@ LIMIT 1;";
         var configId = Guid.NewGuid();
 
         const string insertVersionSql = @"
-INSERT INTO strategy_config_versions (config_id, created_utc, created_by, config_json, config_hash)
-VALUES (@ConfigId, @CreatedUtc, @CreatedBy, @ConfigJson, @ConfigHash);
-SELECT last_insert_rowid();";
+            INSERT INTO strategy_config_versions (config_id, created_utc, created_by, config_json, config_hash)
+            VALUES (@ConfigId, @CreatedUtc, @CreatedBy, @ConfigJson, @ConfigHash);
+            SELECT last_insert_rowid();";
 
         const string updateCurrentSql = @"
-UPDATE strategy_config_current
-SET version_id = @VersionId,
-    updated_utc = @UpdatedUtc
-WHERE singleton_id = 1;";
+            INSERT INTO strategy_config_current (singleton_id, version_id, updated_utc)
+            VALUES (1, @VersionId, @UpdatedUtc)
+            ON CONFLICT(singleton_id) DO UPDATE SET
+                version_id = excluded.version_id,
+                updated_utc = excluded.updated_utc;";
 
         await using var conn = CreateConnection();
         await conn.OpenAsync();

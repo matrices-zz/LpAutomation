@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using LpAutomation.Contracts.Config;
@@ -24,5 +25,20 @@ public sealed class ConfigApiClient
     {
         var rows = await _http.GetFromJsonAsync<List<ActivePoolDto>>("api/config/active-pools", cancellationToken: ct);
         return rows ?? new List<ActivePoolDto>();
+    }
+
+    // UPDATED: Uses PUT and the correct route
+    public async Task UpdateAsync(string jsonUpdate)
+    {
+        // Your server expects a ConfigPutRequest object: { "config": { ... } }
+        // We wrap the incoming JSON string into that structure
+        var wrappedJson = $"{{\"config\": {jsonUpdate}}}";
+
+        var content = new StringContent(wrappedJson, Encoding.UTF8, "application/json");
+
+        // Change from PostAsync("api/config/update") to PutAsync("api/config/current")
+        using var resp = await _http.PutAsync("api/config/current", content);
+
+        resp.EnsureSuccessStatusCode();
     }
 }

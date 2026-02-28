@@ -20,12 +20,15 @@
 		<DataTemplate DataType="vm:TrackPageViewModel">
 			<views:TrackPageView />
 		</DataTemplate>
+		
 		<DataTemplate DataType="vm:RecommendationsPageViewModel">
-			<views:RecommendationsPageView />
+			<views:RecommendationsPageView />			
 		</DataTemplate>
+
 		<DataTemplate DataType="vm:PaperPositionsPageViewModel">
 			<views:PaperPositionsPageView />
 		</DataTemplate>
+
 		<DataTemplate DataType="vm:SettingsPageViewModel">
 			<views:SettingsPageView />
 		</DataTemplate>

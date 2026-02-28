@@ -1,61 +1,173 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:LpAutomation.Desktop.Avalonia.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="1200"
              x:Class="LpAutomation.Desktop.Avalonia.Views.SettingsPageView"
-             HorizontalAlignment="Stretch"
-             VerticalAlignment="Stretch">
+             x:DataType="vm:SettingsPageViewModel">
 
-	<Grid RowDefinitions="Auto,Auto,*" RowSpacing="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinHeight="0">
-		<Border Grid.Row="0" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
-			<Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-				<StackPanel>
-					<TextBlock Text="Connection &amp; API Monitoring" FontSize="20" FontWeight="SemiBold" />
-					<TextBlock Text="All shell-level diagnostics were moved here from the global page chrome." Foreground="{StaticResource TextMutedBrush}" />
+	<Design.PreviewWith>
+		<Border Padding="20">
+			<StackPanel Spacing="10">
+				<TextBlock Text="Settings Preview" FontSize="20"/>
+			</StackPanel>
+		</Border>
+	</Design.PreviewWith>
+
+	<Grid RowDefinitions="Auto, *, Auto">
+		<!-- Header & Toolbar -->
+		<Border Grid.Row="0" Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" Padding="15,10">
+			<Grid ColumnDefinitions="*, Auto">
+				<StackPanel Orientation="Horizontal" Spacing="15">
+					<TextBlock Text="Strategy Configuration" FontSize="22" FontWeight="Bold" VerticalAlignment="Center"/>
+					<Border Background="Orange" CornerRadius="4" Padding="6,2"
+                            IsVisible="{Binding IsDirty}" VerticalAlignment="Center">
+						<TextBlock Text="UNSAVED CHANGES" FontSize="10" FontWeight="Bold" Foreground="Black"/>
+					</Border>
 				</StackPanel>
-				<Button Grid.Column="1"
-						Content="{Binding DataContext.TestApiButtonText, RelativeSource={RelativeSource AncestorType=Window}}"
-						Command="{Binding DataContext.TestApiCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-						Padding="16,9" FontWeight="SemiBold" VerticalAlignment="Center"/>
+
+				<StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+					<Button Content="Reset Defaults" Command="{Binding ResetToDefaultsCommand}" Classes="accent"/>
+					<Button Content="Load from Server" Command="{Binding LoadCommand}" />
+					<Button Content="Save Changes" Command="{Binding SaveCommand}" Classes="accent" FontWeight="Bold"/>
+				</StackPanel>
 			</Grid>
 		</Border>
 
-		<Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
-			<Border Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
-				<StackPanel>
-					<TextBlock Text="Calls" Foreground="{StaticResource TextMutedBrush}" />
-					<TextBlock Text="{Binding DataContext.ApiCallCount, RelativeSource={RelativeSource AncestorType=Window}}" FontSize="24" FontWeight="SemiBold" />
-				</StackPanel>
-			</Border>
-			<Border Grid.Column="1" Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
-				<StackPanel>
-					<TextBlock Text="Errors" Foreground="{StaticResource TextMutedBrush}" />
-					<TextBlock Text="{Binding DataContext.ApiErrorCount, RelativeSource={RelativeSource AncestorType=Window}}" FontSize="24" FontWeight="SemiBold" />
-				</StackPanel>
-			</Border>
-			<Border Grid.Column="2" Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
-				<StackPanel>
-					<TextBlock Text="Payload" Foreground="{StaticResource TextMutedBrush}" />
-					<TextBlock Text="{Binding DataContext.LastPayloadChars, RelativeSource={RelativeSource AncestorType=Window}, StringFormat='{}{0} chars'}" FontSize="24" FontWeight="SemiBold" FontFamily="Consolas" />
-				</StackPanel>
-			</Border>
-			<Border Grid.Column="3" Background="{StaticResource KpiCardBrush}" BorderBrush="{StaticResource KpiBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
-				<StackPanel>
-					<TextBlock Text="Latency" Foreground="{StaticResource TextMutedBrush}" />
-					<TextBlock Text="{Binding DataContext.LastElapsedMs, RelativeSource={RelativeSource AncestorType=Window}, StringFormat='{}{0:F0} ms'}" FontSize="24" FontWeight="SemiBold" FontFamily="Consolas" />
-				</StackPanel>
-			</Border>
-		</Grid>
+		<!-- Main Content -->
+		<ScrollViewer Grid.Row="1" Padding="20">
+			<StackPanel Spacing="20" MaxWidth="900" HorizontalAlignment="Left">
 
-		<Border Grid.Row="2" Background="{StaticResource JsonPanelBrush}" BorderBrush="{StaticResource JsonBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="12" MinHeight="0">
-			<Grid RowDefinitions="Auto,Auto,*" RowSpacing="8" MinHeight="0">
-				<TextBlock Text="Status" FontWeight="SemiBold" FontSize="16" />
-				<StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10">
-					<TextBlock Text="{Binding DataContext.StatusMessage, RelativeSource={RelativeSource AncestorType=Window}}" />
-					<TextBlock Text="{Binding DataContext.LastUpdatedUtc, RelativeSource={RelativeSource AncestorType=Window}, StringFormat='(UTC: {0})'}"
-							   Foreground="{StaticResource TextMutedBrush}" />
+				<!-- 1. Server Connection Card -->
+				<Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}" CornerRadius="8" Padding="15" BoxShadow="0 2 5 0 #20000000">
+					<StackPanel Spacing="10">
+						<TextBlock Text="Server Connection" FontSize="16" FontWeight="SemiBold"/>
+						<Grid ColumnDefinitions="*, Auto, Auto" RowDefinitions="Auto, Auto">
+							<TextBox Grid.Row="0" Grid.Column="0" Text="{Binding ServerUrl}" Watermark="http://localhost:7069" Margin="0,0,10,0"/>
+							<Button Grid.Row="0" Grid.Column="1" Content="Test Connection" Command="{Binding TestConnectionCommand}" Margin="0,0,10,0"/>
+							<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                       Text="{Binding ConnectionStatus}"
+                                       Foreground="{Binding ConnectionStatusColor}"
+                                       FontSize="12" Margin="0,5,0,0"/>
+						</Grid>
+					</StackPanel>
+				</Border>
+
+				<!-- 2. Market Regime Detection -->
+				<Expander Header="Market Regime Detection (Math Thresholds)" IsExpanded="True">
+					<StackPanel Spacing="15" Margin="0,10">
+						<TextBlock Text="Define how the engine classifies the current market state." Foreground="Gray" FontSize="12"/>
+
+						<HeaderedContentControl Header="Trend Detection (R² &amp; Slope)">
+							<UniformGrid Columns="3">
+								<StackPanel Margin="5">
+									<TextBlock Text="Min R² (Confidence)" FontSize="11"/>
+									<NumericUpDown Value="{Binding TrendR2Min}" Minimum="0" Maximum="1" Increment="0.05" FormatString="N2"/>
+								</StackPanel>
+								<StackPanel Margin="5">
+									<TextBlock Text="Min EMA Slope" FontSize="11"/>
+									<NumericUpDown Value="{Binding TrendEmaSlopeAbsMin}" Minimum="0" Maximum="0.1" Increment="0.001" FormatString="N4"/>
+								</StackPanel>
+								<StackPanel Margin="5">
+									<TextBlock Text="Lookback (Hours)" FontSize="11"/>
+									<NumericUpDown Value="{Binding TrendWindowHours}" Minimum="1" Maximum="72"/>
+								</StackPanel>
+							</UniformGrid>
+						</HeaderedContentControl>
+
+						<HeaderedContentControl Header="Sideways / Range-Bound">
+							<UniformGrid Columns="3">
+								<StackPanel Margin="5">
+									<TextBlock Text="Max Volatility (Norm)" FontSize="11"/>
+									<NumericUpDown Value="{Binding SidewaysVolNormMax}" Minimum="0" Maximum="5" Increment="0.1"/>
+								</StackPanel>
+								<StackPanel Margin="5">
+									<TextBlock Text="Max R²" FontSize="11"/>
+									<NumericUpDown Value="{Binding SidewaysR2Max}" Minimum="0" Maximum="1" Increment="0.05"/>
+								</StackPanel>
+								<StackPanel Margin="5">
+									<TextBlock Text="Band Containment %" FontSize="11"/>
+									<NumericUpDown Value="{Binding SidewaysBandContainPctMin}" Minimum="0" Maximum="1" Increment="0.05" FormatString="P0"/>
+								</StackPanel>
+							</UniformGrid>
+						</HeaderedContentControl>
+					</StackPanel>
+				</Expander>
+
+				<!-- 3. Scoring Weights -->
+				<Expander Header="Reinvest Scoring Weights (0.0 - 1.0)">
+					<StackPanel Spacing="10" Margin="0,10">
+						<TextBlock Text="Adjust how much each factor influences the final 'Compound' score." Foreground="Gray" FontSize="12"/>
+						<Grid ColumnDefinitions="2*, 3*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+							<TextBlock Grid.Row="0" Grid.Column="0" Text="Reward: Accrued Fees" VerticalAlignment="Center"/>
+							<Slider Grid.Row="0" Grid.Column="1" Value="{Binding WeightRewardFee}" Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"/>
+
+							<TextBlock Grid.Row="1" Grid.Column="0" Text="Reward: In-Range Time" VerticalAlignment="Center"/>
+							<Slider Grid.Row="1" Grid.Column="1" Value="{Binding WeightRewardInRange}" Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"/>
+
+							<TextBlock Grid.Row="2" Grid.Column="0" Text="Risk: Volatility" VerticalAlignment="Center"/>
+							<Slider Grid.Row="2" Grid.Column="1" Value="{Binding WeightRiskVol}" Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"/>
+
+							<TextBlock Grid.Row="3" Grid.Column="0" Text="Risk: Price Drift" VerticalAlignment="Center"/>
+							<Slider Grid.Row="3" Grid.Column="1" Value="{Binding WeightRiskDrift}" Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"/>
+
+							<TextBlock Grid.Row="4" Grid.Column="0" Text="Risk: Trend Penalty" VerticalAlignment="Center"/>
+							<Slider Grid.Row="4" Grid.Column="1" Value="{Binding WeightRiskTrendPenalty}" Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"/>
+						</Grid>
+					</StackPanel>
+				</Expander>
+
+				<!-- 4. Decision Guardrails -->
+				<Expander Header="Execution Guardrails &amp; Limits">
+					<UniformGrid Columns="2" Margin="0,10">
+						<StackPanel Margin="10">
+							<TextBlock Text="Max Slippage (BPS)" FontWeight="Bold"/>
+							<NumericUpDown Value="{Binding MaxSlippageBps}" Minimum="1" Maximum="500"/>
+							<TextBlock Text="100 BPS = 1%" FontSize="10" Foreground="Gray"/>
+						</StackPanel>
+						<StackPanel Margin="10">
+							<TextBlock Text="Max Notional USD" FontWeight="Bold"/>
+							<NumericUpDown Value="{Binding MaxNotionalUsdPerProposal}" Minimum="0" Maximum="1000000" Increment="100"/>
+						</StackPanel>
+						<StackPanel Margin="10">
+							<TextBlock Text="Max Gas (Gwei)" FontWeight="Bold"/>
+							<NumericUpDown Value="{Binding MaxGasFeeGwei}" Minimum="1" Maximum="500"/>
+						</StackPanel>
+						<StackPanel Margin="10">
+							<TextBlock Text="Min Score to Compound" FontWeight="Bold"/>
+							<NumericUpDown Value="{Binding CompoundScoreMin}" Minimum="0" Maximum="100"/>
+						</StackPanel>
+					</UniformGrid>
+				</Expander>
+
+				<!-- 5. Hedging Logic -->
+				<Expander Header="Automated Hedging (Beta)">
+					<StackPanel Spacing="15" Margin="0,10">
+						<ToggleSwitch OnContent="Hedging Enabled" OffContent="Hedging Disabled" IsChecked="{Binding HedgingEnabled}"/>
+						<StackPanel IsEnabled="{Binding HedgingEnabled}" Spacing="10">
+							<TextBlock Text="Exposure Trigger %" FontSize="11"/>
+							<Slider Value="{Binding HedgingExposurePctTrigger}" Minimum="0" Maximum="1" TickFrequency="0.01"/>
+							<TextBlock Text="{Binding HedgingExposurePctTrigger, StringFormat={}{0:P0}}" HorizontalAlignment="Right" FontSize="10"/>
+
+							<TextBlock Text="Vol Spike Ratio (1h/24h)" FontSize="11"/>
+							<NumericUpDown Value="{Binding HedgeVolSpikeRatioMin}" Minimum="1" Maximum="10" Increment="0.1"/>
+						</StackPanel>
+					</StackPanel>
+				</Expander>
+
+			</StackPanel>
+		</ScrollViewer>
+
+		<!-- Status Bar -->
+		<Border Grid.Row="2" Height="30" Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" BorderThickness="0,1,0,0" BorderBrush="Gray">
+			<Grid ColumnDefinitions="Auto, *, Auto">
+				<StackPanel Orientation="Horizontal" Margin="10,0" VerticalAlignment="Center">
+					<Ellipse Width="8" Height="8" Fill="{Binding StatusKind, Converter={StaticResource StatusToColorConverter}}" Margin="0,0,8,0"/>
+					<TextBlock Text="{Binding StatusMessage}" FontSize="12" VerticalAlignment="Center"/>
 				</StackPanel>
-				<ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" MinHeight="0">
-					<TextBlock Text="{Binding DataContext.LastApiPreview, RelativeSource={RelativeSource AncestorType=Window}}" FontFamily="Consolas" TextWrapping="Wrap" />
-				</ScrollViewer>
+				<ProgressBar Grid.Column="1" IsIndeterminate="True" Height="2" VerticalAlignment="Bottom" IsVisible="{Binding IsBusy}"/>
+				<TextBlock Grid.Column="2" Text="LpAutomation v1.0" Margin="10,0" FontSize="10" VerticalAlignment="Center" Foreground="Gray"/>
 			</Grid>
 		</Border>
 	</Grid>
