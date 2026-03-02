@@ -14,6 +14,24 @@ public partial class PaperPositionsPageViewModel : ObservableObject
 {
     private readonly PaperPositionsApiClient _api;
 
+    /// <summary>
+    /// Called by the Shell when the user clicks "→ Simulate" on a Discover row.
+    /// Pre-populates the form fields so the user can immediately tweak and run.
+    /// </summary>
+    public void PreloadPool(string poolAddress, int chainId, string pair, int feeTier)
+    {
+        PoolAddress = poolAddress;
+        ChainIdText = chainId.ToString();
+        FeeTierText = feeTier.ToString();
+
+        // Split "TOKEN0/TOKEN1" into the two symbol fields
+        var parts = pair.Split('/', 2);
+        Token0Symbol = parts.Length > 0 ? parts[0] : "";
+        Token1Symbol = parts.Length > 1 ? parts[1] : "";
+
+        Status = $"Pre-loaded from Discover: {pair} on Chain {chainId}";
+    }
+
     public PaperPositionsPageViewModel(PaperPositionsApiClient api)
     {
         _api = api;

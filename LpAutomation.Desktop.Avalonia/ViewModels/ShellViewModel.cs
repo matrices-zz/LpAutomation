@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LpAutomation.Desktop.Avalonia.Services;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LpAutomation.Desktop.Avalonia.ViewModels;
 
@@ -96,6 +97,21 @@ public partial class ShellViewModel : ObservableObject
         CurrentPage = first.Create();
         CurrentPageTitle = first.Title;
         Title = $"LP Automation — {first.Title}";
+    }
+
+    private void OnSimulateRequested(object? sender, RecommendationRowVm row)
+    {
+        // Switch to Simulate page
+        var simulateNav = NavItems.FirstOrDefault(n => n.Title == "Simulate");
+        if (simulateNav is null) return;
+
+        CurrentPage = simulateNav.Create();
+        CurrentPageTitle = simulateNav.Title;
+        Title = $"LP Automation — Simulate";
+
+        // Pre-load the pool if the Simulate page supports it
+        if (CurrentPage is PaperPositionsPageViewModel vm)
+            vm.PreloadPool(row.PoolAddress, row.ChainId, row.Pool, row.FeeTier);
     }
 
     [RelayCommand]

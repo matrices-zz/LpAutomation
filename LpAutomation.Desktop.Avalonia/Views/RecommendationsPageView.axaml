@@ -50,7 +50,7 @@
 							Command="{Binding ResetFiltersCommand}" />
 				</Grid>
 
-				<Grid Grid.Row="1" RowDefinitions="Auto,Auto" RowSpacing="6">
+				<Grid Grid.Row="1" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
 					<Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
 						<TextBlock Grid.Column="0"
 								   VerticalAlignment="Center"
@@ -108,6 +108,29 @@
 							<TextBlock Text="{Binding SelectedPreset}" VerticalAlignment="Center" Margin="8,0,0,0"/>
 						</StackPanel>
 					</ScrollViewer>
+					<Grid Grid.Row="2" ColumnDefinitions="Auto,90,Auto,90,Auto,90,*" ColumnSpacing="8" Margin="0,4,0,0">
+						<TextBlock Grid.Column="0" Text="Min TVL" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+						<TextBox Grid.Column="1"
+								 Text="{Binding MinTvlText}"
+								 Watermark="e.g. 100k"
+								 VerticalAlignment="Center" />
+
+						<TextBlock Grid.Column="2" Text="Max TVL" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}" Margin="8,0,0,0"/>
+						<TextBox Grid.Column="3"
+								 Text="{Binding MaxTvlText}"
+								 Watermark="e.g. 50M"
+								 VerticalAlignment="Center" />
+
+						<TextBlock Grid.Column="4" Text="Min 24h Vol" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}" Margin="8,0,0,0"/>
+						<TextBox Grid.Column="5"
+								 Text="{Binding MinVolumeText}"
+								 Watermark="e.g. 1M"
+								 VerticalAlignment="Center" />
+
+						<TextBlock Grid.Column="6" VerticalAlignment="Center" Margin="12,0,0,0"
+								   Foreground="{StaticResource TextMutedBrush}" FontSize="11"
+								   Text="Tip: Use 'K', 'M', or 'B' (e.g. 10M for 10 million)" />
+					</Grid>
 				</Grid>
 			</Grid>
 		</Border>
@@ -259,10 +282,11 @@
 						<DataGridTemplateColumn Header="Action" Width="Auto" MinWidth="110">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
-									<Button Content="Simulate"
+									<Button Content="→ Simulate"
 											Padding="10,4"
-											Command="{Binding DataContext.SimulatePoolCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-											CommandParameter="{Binding PoolAddress}" />
+											Command="{Binding DataContext.SimulatePoolCommand,
+                              RelativeSource={RelativeSource AncestorType=UserControl}}"
+											CommandParameter="{Binding}" />
 								</DataTemplate>
 							</DataGridTemplateColumn.CellTemplate>
 						</DataGridTemplateColumn>

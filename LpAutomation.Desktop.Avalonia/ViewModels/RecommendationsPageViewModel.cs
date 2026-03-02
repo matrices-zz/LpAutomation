@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -94,6 +95,39 @@ public partial class RecommendationsPageViewModel : ObservableObject
     [ObservableProperty] private bool _isDexSelectorOpen;
     [ObservableProperty] private string _selectedDexSummary = "All DEXs";
     [ObservableProperty] private string _selectedPreset = AllPreset;
+    [ObservableProperty] private decimal _minTvl = 0;
+    [ObservableProperty] private decimal _maxTvl = 100_000_000;
+    [ObservableProperty] private decimal _minVolume24h = 0;
+
+    // UI-friendly string wrappers
+    [ObservableProperty] private string _minTvlText = "0";
+    [ObservableProperty] private string _maxTvlText = "100M";
+    [ObservableProperty] private string _minVolumeText = "0";
+
+    partial void OnMinTvlTextChanged(string value) => MinTvl = ParseAbbreviatedValue(value);
+    partial void OnMaxTvlTextChanged(string value) => MaxTvl = ParseAbbreviatedValue(value);
+    partial void OnMinVolumeTextChanged(string value) => MinVolume24h = ParseAbbreviatedValue(value);
+
+    // The "Magic" Parser: Handles 10k, 5M, 1.2B, etc.
+    private decimal ParseAbbreviatedValue(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return 0;
+
+        input = input.Trim().ToUpper();
+        decimal multiplier = 1;
+
+        if (input.EndsWith("K")) { multiplier = 1_000; input = input[..^1]; }
+        else if (input.EndsWith("M")) { multiplier = 1_000_000; input = input[..^1]; }
+        else if (input.EndsWith("B")) { multiplier = 1_000_000_000; input = input[..^1]; }
+
+        if (decimal.TryParse(input, out var val))
+        {
+            var result = val * multiplier;
+            ApplyFilters(); // Trigger the list update
+            return result;
+        }
+        return 0;
+    }
 
     public IReadOnlyList<string> RegimeOptions { get; }
     public IReadOnlyList<string> TimeframeOptions { get; }
@@ -114,6 +148,7 @@ public partial class RecommendationsPageViewModel : ObservableObject
         // 2. Open a Dialog (ProposalReviewView) passing the proposal
         // 3. If user clicks "Sign & Broadcast", trigger the Desktop Wallet flow
     }
+    [RelayCommand]
     private async Task RefreshAsync(CancellationToken ct)
     {
         try
@@ -144,6 +179,10 @@ public partial class RecommendationsPageViewModel : ObservableObject
                     ChainLabel = ToChainLabel(dto.ChainId),
                     FeeTier = dto.FeeTier,
                     FeeLabel = FeeToPct(dto.FeeTier),
+                    Tvl = 0,           // TODO: wire from DTO when server exposes it
+                    TvlLabel = "N/A",
+                    Volume24h = 0,
+                    Volume24hLabel = "N/A",
                     RegimeLabel = RegimeToLabel(dto.Regime),
                     Reinvest = dto.ReinvestScore,
                     ReinvestBrush = ReinvestScoreToBrush(dto.ReinvestScore),
@@ -209,12 +248,14 @@ public partial class RecommendationsPageViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SimulatePool(string? poolAddress)
+    private void SimulatePool(RecommendationRowVm? row)
     {
-        Status = string.IsNullOrWhiteSpace(poolAddress)
-            ? "Pool address unavailable for this row."
-            : $"Queued for Simulate: {poolAddress}";
+        if (row is null) return;
+        SimulateRequested?.Invoke(this, row);
     }
+
+    // Event the Shell listens to for page navigation
+    public event EventHandler<RecommendationRowVm>? SimulateRequested;
 
 
     [RelayCommand]
@@ -336,6 +377,15 @@ public partial class RecommendationsPageViewModel : ObservableObject
         {
             query = query.Where(r => string.Equals(r.RegimeLabel, SelectedRegime, StringComparison.OrdinalIgnoreCase));
         }
+
+        if (MinTvl > 0)
+            query = query.Where(r => (decimal)r.Tvl >= MinTvl);
+
+        if (MaxTvl < decimal.MaxValue)
+            query = query.Where(r => (decimal)r.Tvl <= MaxTvl);
+
+        if (MinVolume24h > 0)
+            query = query.Where(r => (decimal)r.Volume24h >= MinVolume24h);
 
         query = SelectedPreset switch
         {

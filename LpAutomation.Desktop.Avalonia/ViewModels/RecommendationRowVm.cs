@@ -35,4 +35,9 @@ public sealed class RecommendationRowVm
     public DateTimeOffset UpdatedUtc { get; init; }
     public string UpdatedLabel { get; init; } = "";
     public string Summary { get; init; } = "";
+
+    public double Tvl { get; set; }
+    public string TvlLabel { get; set; } = "";
+    public double Volume24h { get; set; }
+    public string Volume24hLabel { get; set; } = "";
 }
